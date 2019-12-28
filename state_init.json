@@ -81,7 +81,7 @@
         {"name": "Thermalist", "taken": false},
         {"name": "Miner", "taken": false}
     ],
-    "cards-inPlay": [
+    "cardsInPlay": [
         {"id": 139, "owner": 2},
         {"id": 142, "owner": 1},
         {"id": 145, "owner": 0}
