@@ -3,9 +3,6 @@
     "oxygen": 0,
     "temperature": -30,
     "oceansPlaced": 0,
-    "comment-tiles":[
-        "tile state is: id, ownerID, type"
-    ],
     "tiles": [
         {"row": 0, "column": 0, "type": "empty", "name": "", "resources": ["Steel", "Steel"]},
         {"row": 0, "column": 1, "type": "empty", "name": "", "resources": ["Steel", "Steel"], "reserved": "Ocean"},
@@ -70,9 +67,20 @@
         {"row": 8, "column": 4, "type": "empty", "name": "", "resources": ["Titanium", "Titanium"], "reserved": "Ocean"}
     ],
     "specialTiles": [],
-    "comment-awards": "only list awards that are taken. list id and ownerID",
-    "awards": [],
-    "milestones": [],
+    "milestones": [
+        {"name": "Terraformer", "taken": false},
+        {"name": "Mayor", "taken": false},
+        {"name": "Gardener", "taken": false},
+        {"name": "Builder", "taken": false},
+        {"name": "Planner", "taken": false}
+    ],
+    "awards": [
+        {"name": "Landlord", "taken": false},
+        {"name": "Banker", "taken": false},
+        {"name": "Scientist", "taken": false},
+        {"name": "Thermalist", "taken": false},
+        {"name": "Miner", "taken": false}
+    ],
     "cards-inPlay": [
         {"id": 139, "owner": 2},
         {"id": 142, "owner": 1},
