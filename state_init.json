@@ -1,0 +1,88 @@
+{
+    "generation": 0,
+    "oxygen": 0,
+    "temperature": -30,
+    "oceansPlaced": 0,
+    "comment-tiles":[
+        "Only list tiles that are occupied somehow. Tiles in default state are not listed.",
+        "tile state is: id, ownerID, type"
+    ],
+    "tiles": [],
+    "specialTiles": [],
+    "comment-awards": "only list awards that are taken. list id and ownerID",
+    "awards": [],
+    "milestones": [],
+    "cards-inPlay": [
+        {"id": 139, "owner": 2},
+        {"id": 142, "owner": 1},
+        {"id": 145, "owner": 0}
+    ],
+    "players": [
+        {
+            "id": 0,
+            "TR": 20,
+            "corporation": 8,
+            "inventory": {
+                "Megacredits": 48,
+                "Steel": 0,
+                "Titanium": 0,
+                "Plants": 0,
+                "Energy": 0,
+                "Heat": 0
+            },
+            "production": {
+                "Megacredits": 0,
+                "Steel": 0,
+                "Titanium": 0,
+                "Plants": 0,
+                "Energy": 1,
+                "Heat": 0
+            },
+            "hand": [26, 55, 119, 45, 41, 111, 88, 95, 107, 86]
+        },
+        {
+            "id": 1,
+            "TR": 20,
+            "corporation": 5,
+            "inventory": {
+                "Megacredits": 30,
+                "Steel": 5,
+                "Titanium": 0,
+                "Plants": 0,
+                "Energy": 0,
+                "Heat": 0
+            },
+            "production": {
+                "Megacredits": 0,
+                "Steel": 1,
+                "Titanium": 0,
+                "Plants": 0,
+                "Energy": 0,
+                "Heat": 0
+            },
+            "hand": [9, 50, 81, 67, 44, 92, 87, 4, 112, 43]
+        },
+        {
+            "id": 2,
+            "TR": 20,
+            "corporation": 2,
+            "inventory": {
+                "Megacredits": 42,
+                "Steel": 0,
+                "Titanium": 0,
+                "Plants": 0,
+                "Energy": 0,
+                "Heat": 0
+            },
+            "production": {
+                "Megacredits": 0,
+                "Steel": 0,
+                "Titanium": 0,
+                "Plants": 0,
+                "Energy": 0,
+                "Heat": 3
+            },
+            "hand": [31, 77, 133, 101, 64, 48, 1, 19, 85, 110]
+        }
+    ]
+}
