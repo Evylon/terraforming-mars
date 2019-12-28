@@ -1,89 +1,169 @@
-// TODO this is a copy of init state, edit
 {
-    "generation": 4,
-    "oxygen": 0,
-    "temperature": -30,
-    "oceansPlaced": 0,
-    "comment-tiles":[
-        "Only list tiles that are occupied somehow. Tiles in default state are not listed.",
-        "tile state is: id, ownerID, type"
+    "generation": 3,
+    "oxygen": 4,
+    "temperature": -12,
+    "oceansPlaced": 2,
+    "tiles": [
+        {"row": 0, "column": 0, "type": "empty", "name": "", "resources": ["Steel", "Steel"]},
+        {"row": 0, "column": 1, "type": "empty", "name": "", "resources": ["Steel", "Steel"], "reserved": "Ocean"},
+        {"row": 0, "column": 2, "type": "empty", "name": ""},
+        {"row": 0, "column": 3, "type": "empty", "name": "", "resources": ["Card"], "reserved": "Ocean"},
+        {"row": 0, "column": 4, "type": "empty", "name": "", "reserved": "Ocean"},
+        {"row": 1, "column": 0, "type": "empty", "name": ""},
+        {"row": 1, "column": 1, "type": "empty", "name": "Tharsis Tholus", "resources": ["Steel"]},
+        {"row": 1, "column": 2, "type": "empty", "name": ""},
+        {"row": 1, "column": 3, "type": "empty", "name": ""},
+        {"row": 1, "column": 4, "type": "empty", "name": ""},
+        {"row": 1, "column": 5, "type": "Ocean", "name": "", "resources": ["Card", "Card"], "reserved": "Ocean"},
+        {"row": 2, "column": 0, "type": "Greenery", "name": "Ascraeus Mons", "resources": ["Card"], "owner": 1},
+        {"row": 2, "column": 1, "type": "empty", "name": ""},
+        {"row": 2, "column": 2, "type": "empty", "name": ""},
+        {"row": 2, "column": 3, "type": "empty", "name": ""},
+        {"row": 2, "column": 4, "type": "empty", "name": ""},
+        {"row": 2, "column": 5, "type": "empty", "name": ""},
+        {"row": 2, "column": 6, "type": "empty", "name": "", "resources": ["Steel"]},
+        {"row": 3, "column": 0, "type": "City", "name": "Pavonis Mons", "resources": ["Plant", "Titanium"], "owner": 1},
+        {"row": 3, "column": 1, "type": "empty", "name": "", "resources": ["Plant"]},
+        {"row": 3, "column": 2, "type": "empty", "name": "", "resources": ["Plant"]},
+        {"row": 3, "column": 3, "type": "empty", "name": "", "resources": ["Plant"]},
+        {"row": 3, "column": 4, "type": "empty", "name": "", "resources": ["Plant", "Plant"]},
+        {"row": 3, "column": 5, "type": "empty", "name": "", "resources": ["Plant"]},
+        {"row": 3, "column": 6, "type": "empty", "name": "", "resources": ["Plant"]},
+        {"row": 3, "column": 7, "type": "empty", "name": "", "resources": ["Plant", "Plant"], "reserved": "Ocean"},
+        {"row": 4, "column": 0, "type": "empty", "name": "Arsia Mons", "resources": ["Plant", "Plant"]},
+        {"row": 4, "column": 1, "type": "Greenery", "name": "", "resources": ["Plant", "Plant"], "owner": 1},
+        {"row": 4, "column": 2, "type": "empty", "name": "Noctis City", "resources": ["Plant", "Plant"], "reserved": "Noctis City"},
+        {"row": 4, "column": 3, "type": "empty", "name": "", "resources": ["Plant", "Plant"], "reserved": "Ocean"},
+        {"row": 4, "column": 4, "type": "empty", "name": "", "resources": ["Plant", "Plant"], "reserved": "Ocean"},
+        {"row": 4, "column": 5, "type": "empty", "name": "", "resources": ["Plant", "Plant"], "reserved": "Ocean"},
+        {"row": 4, "column": 6, "type": "empty", "name": "", "resources": ["Plant", "Plant"]},
+        {"row": 4, "column": 7, "type": "empty", "name": "", "resources": ["Plant", "Plant"]},
+        {"row": 4, "column": 8, "type": "empty", "name": "", "resources": ["Plant", "Plant"]},
+        {"row": 5, "column": 0, "type": "empty", "name": "", "resources": ["Plant"]},
+        {"row": 5, "column": 1, "type": "empty", "name": "", "resources": ["Plant", "Plant"]},
+        {"row": 5, "column": 2, "type": "empty", "name": "", "resources": ["Plant"]},
+        {"row": 5, "column": 3, "type": "empty", "name": "", "resources": ["Plant"]},
+        {"row": 5, "column": 4, "type": "empty", "name": "", "resources": ["Plant"]},
+        {"row": 5, "column": 5, "type": "empty", "name": "", "resources": ["Plant"], "reserved": "Ocean"},
+        {"row": 5, "column": 6, "type": "empty", "name": "", "resources": ["Plant"], "reserved": "Ocean"},
+        {"row": 5, "column": 7, "type": "empty", "name": "", "resources": ["Plant"], "reserved": "Ocean"},
+        {"row": 6, "column": 0, "type": "empty", "name": ""},
+        {"row": 6, "column": 1, "type": "empty", "name": ""},
+        {"row": 6, "column": 2, "type": "empty", "name": ""},
+        {"row": 6, "column": 3, "type": "empty", "name": ""},
+        {"row": 6, "column": 4, "type": "empty", "name": ""},
+        {"row": 6, "column": 5, "type": "empty", "name": "", "resources": ["Steel"]},
+        {"row": 6, "column": 6, "type": "empty", "name": ""},
+        {"row": 7, "column": 0, "type": "empty", "name": "", "resources": ["Steel", "Steel"]},
+        {"row": 7, "column": 1, "type": "empty", "name": ""},
+        {"row": 7, "column": 2, "type": "Greenery", "name": "", "resources": ["Card"], "owner": 2},
+        {"row": 7, "column": 3, "type": "empty", "name": "", "resources": ["Card"]},
+        {"row": 7, "column": 4, "type": "empty", "name": ""},
+        {"row": 7, "column": 5, "type": "empty", "name": "", "resources": ["Titanium"]},
+        {"row": 8, "column": 0, "type": "empty", "name": "", "resources": ["Steel"]},
+        {"row": 8, "column": 1, "type": "empty", "name": "", "resources": ["Steel", "Steel"]},
+        {"row": 8, "column": 2, "type": "empty", "name": ""},
+        {"row": 8, "column": 3, "type": "empty", "name": ""},
+        {"row": 8, "column": 4, "type": "Ocean", "name": "", "resources": ["Titanium", "Titanium"], "reserved": "Ocean"}
     ],
-    "tiles": [],
     "specialTiles": [],
-    "comment-awards": "only list awards that are taken. list id and ownerID",
-    "awards": [],
-    "milestones": [],
+    "milestones": [
+        {"name": "Terraformer", "taken": false},
+        {"name": "Mayor", "taken": false},
+        {"name": "Gardener", "taken": false},
+        {"name": "Builder", "taken": false},
+        {"name": "Planner", "taken": false}
+    ],
+    "awards": [
+        {"name": "Landlord", "taken": false},
+        {"name": "Banker", "taken": false},
+        {"name": "Scientist", "taken": false},
+        {"name": "Thermalist", "taken": false},
+        {"name": "Miner", "taken": false}
+    ],
     "cards-inPlay": [
         {"id": 139, "owner": 2},
+        {"id": 26, "owner": 2},
+        {"id": 55, "owner": 2},
+        {"id": 119, "owner": 2},
+        {"id": 45, "owner": 2},
         {"id": 142, "owner": 1},
-        {"id": 145, "owner": 0}
+        {"id": 9, "owner": 1},
+        {"id": 50, "owner": 1},
+        {"id": 81, "owner": 1},
+        {"id": 67, "owner": 1},
+        {"id": 145, "owner": 0},
+        {"id": 31, "owner": 0},
+        {"id": 77, "owner": 0},
+        {"id": 133, "owner": 0},
+        {"id": 101, "owner": 0}
     ],
     "players": [
         {
             "id": 0,
-            "TR": 20,
+            "TR": 31,
             "corporation": 8,
             "inventory": {
-                "Megacredits": 48,
-                "Steel": 0,
-                "Titanium": 0,
-                "Plants": 0,
-                "Energy": 0,
-                "Heat": 0
+                "Megacredits": 21,
+                "Steel": 1,
+                "Titanium": 2,
+                "Plants": 2,
+                "Energy": 3,
+                "Heat": 5
             },
             "production": {
-                "Megacredits": 0,
-                "Steel": 0,
+                "Megacredits": 2,
+                "Steel": 1,
                 "Titanium": 0,
-                "Plants": 0,
-                "Energy": 1,
-                "Heat": 0
+                "Plants": 1,
+                "Energy": 3,
+                "Heat": 2
             },
-            "hand": [26, 55, 119, 45, 41, 111, 88, 95, 107, 86]
+            "hand": [41, 111, 88, 95, 107, 86]
         },
         {
             "id": 1,
-            "TR": 20,
+            "TR": 27,
             "corporation": 5,
             "inventory": {
-                "Megacredits": 30,
-                "Steel": 5,
-                "Titanium": 0,
+                "Megacredits": 19,
+                "Steel": 3,
+                "Titanium": 1,
                 "Plants": 0,
-                "Energy": 0,
-                "Heat": 0
+                "Energy": 2,
+                "Heat": 3
             },
             "production": {
                 "Megacredits": 0,
-                "Steel": 1,
-                "Titanium": 0,
+                "Steel": 3,
+                "Titanium": 1,
                 "Plants": 0,
-                "Energy": 0,
-                "Heat": 0
+                "Energy": 2,
+                "Heat": 1
             },
-            "hand": [9, 50, 81, 67, 44, 92, 87, 4, 112, 43]
+            "hand": [44, 92, 87, 4, 112, 43]
         },
         {
             "id": 2,
-            "TR": 20,
+            "TR": 30,
             "corporation": 2,
             "inventory": {
-                "Megacredits": 42,
+                "Megacredits": 31,
                 "Steel": 0,
                 "Titanium": 0,
-                "Plants": 0,
-                "Energy": 0,
-                "Heat": 0
+                "Plants": 6,
+                "Energy": 1,
+                "Heat": 9
             },
             "production": {
-                "Megacredits": 0,
+                "Megacredits": 2,
                 "Steel": 0,
                 "Titanium": 0,
-                "Plants": 0,
-                "Energy": 0,
-                "Heat": 3
+                "Plants": 2,
+                "Energy": 2,
+                "Heat": 5
             },
-            "hand": [31, 77, 133, 101, 64, 48, 1, 19, 85, 110]
+            "hand": [64, 48, 1, 19, 85, 110]
         }
     ]
 }
