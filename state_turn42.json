@@ -66,20 +66,23 @@
         {"x": 8, "z": 3, "type": "empty", "name": ""},
         {"x": 8, "z": 4, "type": "Ocean", "name": "", "resources": ["Titanium", "Titanium"], "reserved": "Ocean"}
     ],
-    "specialTiles": [],
+    "specialTiles": [
+        {"name": "Phobos Space Haven", "type": "empty", "reserved": "City"},
+        {"name": "Ganymede Colony", "type": "empty", "reserved": "City"}
+    ],
     "milestones": [
-        {"name": "Terraformer", "taken": false},
-        {"name": "Mayor", "taken": false},
-        {"name": "Gardener", "taken": false},
-        {"name": "Builder", "taken": false},
-        {"name": "Planner", "taken": false}
+        {"name": "Terraformer"},
+        {"name": "Mayor"},
+        {"name": "Gardener"},
+        {"name": "Builder", "owner": 0},
+        {"name": "Planner"}
     ],
     "awards": [
-        {"name": "Landlord", "taken": false},
-        {"name": "Banker", "taken": false},
-        {"name": "Scientist", "taken": false},
-        {"name": "Thermalist", "taken": false},
-        {"name": "Miner", "taken": false}
+        {"name": "Landlord"},
+        {"name": "Banker"},
+        {"name": "Scientist"},
+        {"name": "Thermalist"},
+        {"name": "Miner"}
     ],
     "cardsInPlay": [
         {"id": 139, "owner": 2},
