@@ -1,0 +1,78 @@
+{
+    "Card Name": "string",
+    "Card #": "number",
+    "Cost": "number",
+    "Card Type": "enum",
+    "Deck": "enum",
+    "Requirements": {
+        "global": {
+            "Min Temperature": "number",
+            "Max Temperature": "number",
+            "Min Oxygen": "number",
+            "Max Oxygen": "number",
+            "Min Ocean": "number",
+            "Max Ocean": "number"
+        },
+        "local": {
+            "Science": "number",
+            "Building": "number",
+            "Space": "number",
+            "Microbe": "number",
+            "Plant": "number",
+            "Animal": "number",
+            "City": "number",
+            "Earth": "number",
+            "Jovian": "number",
+            "Energy": "number",
+            "Other": "bool"
+        }
+    },
+    "Tags": {
+        "Science": "number",
+        "Building": "number",
+        "Space": "number",
+        "Microbe": "number",
+        "Plant": "number",
+        "Animal": "number",
+        "City": "number",
+        "Earth": "number",
+        "Jovian": "number",
+        "Energy": "number",
+        "Event": "number"
+    },
+    "Production": {
+        "Megacredit": "numberOrRef",
+        "Steel": "numberOrRef",
+        "Titanium": "numberOrRef",
+        "Plant": "numberOrRef",
+        "Energy": "numberOrRef",
+        "Heat": "numberOrRef"
+    },
+    "Resources": {
+        "Megacredit": "numberOrRef",
+        "Steel": "numberOrRef",
+        "Titanium": "numberOrRef",
+        "Plant": "numberOrRef",
+        "Energy": "numberOrRef",
+        "Heat": "numberOrRef",
+        "Other": "enum"
+    },
+    "Terraforming Effect": {
+        "Temperature": "numberOrRef",
+        "Oxygen": "numberOrRef",
+        "Ocean": "numberOrRef",
+        "TR": "numberOrRef",
+        "VP": "numberOrRef"
+    },
+    "Interactions": {
+        "Tile/Colony Placement": "enum",
+        "# Actions and/or Effect": "numberOrRef",
+        "Depends on opponents": "enum",
+        "Affects opponents": "enum",
+        "Holds Resources": "enum"
+    },
+    "Text": {
+        "Action or On-going Effect text": "string",
+        "One time Effect Text": "string"
+    }
+}
