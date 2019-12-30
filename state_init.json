@@ -32,7 +32,7 @@
         {"x": 3, "z": 8, "type": "empty", "name": "", "resources": ["Plant", "Plant"], "reserved": "Ocean"},
         {"x": 4, "z": 0, "type": "empty", "name": "Arsia Mons", "resources": ["Plant", "Plant"]},
         {"x": 4, "z": 1, "type": "empty", "name": "", "resources": ["Plant", "Plant"]},
-        {"x": 4, "z": 2, "type": "empty", "name": "Noctis City", "resources": ["Plant", "Plant"], "reserved": "Noctis City"},
+        {"x": 4, "z": 2, "type": "empty", "name": "Noctis City", "resources": ["Plant", "Plant"], "reserved": "City"},
         {"x": 4, "z": 3, "type": "empty", "name": "", "resources": ["Plant", "Plant"], "reserved": "Ocean"},
         {"x": 4, "z": 4, "type": "empty", "name": "", "resources": ["Plant", "Plant"], "reserved": "Ocean"},
         {"x": 4, "z": 5, "type": "empty", "name": "", "resources": ["Plant", "Plant"], "reserved": "Ocean"},
@@ -92,7 +92,7 @@
     "players": [
         {
             "id": 0,
-            "TR": 20,
+            "tr": 20,
             "corporation": 8,
             "inventory": {
                 "Megacredits": 48,
