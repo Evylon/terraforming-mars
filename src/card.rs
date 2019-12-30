@@ -1,21 +1,21 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::convert::From;
 // use std::fmt;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Card {
-    name: String,
-    id: String,
-    cost: u32,
-    card_type: CardType,
-    deck: Deck,
-    requirements: Requirements,
-    tags: Tags,
-    production: Production,
-    resources: Resources,
-    terraforming_effect: TerraformingEffect,
-    interactions: Interactions,
-    text: Text,
+    pub name: String,
+    pub id: String,
+    pub cost: u32,
+    pub card_type: CardType,
+    pub deck: Deck,
+    pub requirements: Requirements,
+    pub tags: Tags,
+    pub production: Production,
+    pub resources: Resources,
+    pub terraforming_effect: TerraformingEffect,
+    pub interactions: Interactions,
+    pub text: Text,
 }
 
 // impl fmt::Display for Card {
@@ -110,99 +110,99 @@ impl From<CSVCard> for Card {
     }
 }
 
-#[derive(Debug)]
-struct Requirements {
-    global: GlobalRequirements,
-    local: LocalRequirements,
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Requirements {
+    pub global: GlobalRequirements,
+    pub local: LocalRequirements,
 }
 
-#[derive(Debug)]
-struct GlobalRequirements {
-    min_temperature: i32,
-    max_temperature: i32,
-    min_oxygen: i32,
-    max_oxygen: i32,
-    min_ocean: i32,
-    max_ocean: i32,
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GlobalRequirements {
+    pub min_temperature: i32,
+    pub max_temperature: i32,
+    pub min_oxygen: i32,
+    pub max_oxygen: i32,
+    pub min_ocean: i32,
+    pub max_ocean: i32,
 }
 
-#[derive(Debug)]
-struct LocalRequirements {
-    science: i32,
-    building: i32,
-    space: i32,
-    microbe: i32,
-    plant: i32,
-    animal: i32,
-    city: NumberOrRef,
-    earth: i32,
-    jovian: i32,
-    energy: i32,
-    other: BoolOrRef,
+#[derive(Debug, Serialize, Deserialize)]
+pub struct LocalRequirements {
+    pub science: i32,
+    pub building: i32,
+    pub space: i32,
+    pub microbe: i32,
+    pub plant: i32,
+    pub animal: i32,
+    pub city: NumberOrRef,
+    pub earth: i32,
+    pub jovian: i32,
+    pub energy: i32,
+    pub other: BoolOrRef,
 }
 
-#[derive(Debug)]
-struct Tags {
-    science: NumberOrRef,
-    building: NumberOrRef,
-    space: NumberOrRef,
-    microbe: NumberOrRef,
-    plant: NumberOrRef,
-    animal: NumberOrRef,
-    city: NumberOrRef,
-    earth: NumberOrRef,
-    jovian: NumberOrRef,
-    energy: NumberOrRef,
-    event: NumberOrRef,
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Tags {
+    pub science: NumberOrRef,
+    pub building: NumberOrRef,
+    pub space: NumberOrRef,
+    pub microbe: NumberOrRef,
+    pub plant: NumberOrRef,
+    pub animal: NumberOrRef,
+    pub city: NumberOrRef,
+    pub earth: NumberOrRef,
+    pub jovian: NumberOrRef,
+    pub energy: NumberOrRef,
+    pub event: NumberOrRef,
 }
 
-#[derive(Debug)]
-struct Production {
-    megacredit: NumberOrRef,
-    steel: NumberOrRef,
-    titanium: NumberOrRef,
-    plant: NumberOrRef,
-    energy: NumberOrRef,
-    heat: NumberOrRef,
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Production {
+    pub megacredit: NumberOrRef,
+    pub steel: NumberOrRef,
+    pub titanium: NumberOrRef,
+    pub plant: NumberOrRef,
+    pub energy: NumberOrRef,
+    pub heat: NumberOrRef,
 }
 
-#[derive(Debug)]
-struct Resources {
-    megacredit: NumberOrRef,
-    steel: NumberOrRef,
-    titanium: NumberOrRef,
-    plant: NumberOrRef,
-    energy: NumberOrRef,
-    heat: NumberOrRef,
-    other: BoolOrRef,
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Resources {
+    pub megacredit: NumberOrRef,
+    pub steel: NumberOrRef,
+    pub titanium: NumberOrRef,
+    pub plant: NumberOrRef,
+    pub energy: NumberOrRef,
+    pub heat: NumberOrRef,
+    pub other: BoolOrRef,
 }
 
-#[derive(Debug)]
-struct TerraformingEffect {
-    temperature: NumberOrRef,
-    oxygen: NumberOrRef,
-    ocean: NumberOrRef,
-    tr: NumberOrRef,
-    vp: NumberOrRef,
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TerraformingEffect {
+    pub temperature: NumberOrRef,
+    pub oxygen: NumberOrRef,
+    pub ocean: NumberOrRef,
+    pub tr: NumberOrRef,
+    pub vp: NumberOrRef,
 }
 
-#[derive(Debug)]
-struct Interactions {
-    tile_placement: BoolOrRef,
-    num_actions_or_effect: NumberOrRef,
-    depends_on_opponents: BoolOrRef,
-    affects_opponents: BoolOrRef,
-    holds_resources: HoldableResource,
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Interactions {
+    pub tile_placement: BoolOrRef,
+    pub num_actions_or_effect: NumberOrRef,
+    pub depends_on_opponents: BoolOrRef,
+    pub affects_opponents: BoolOrRef,
+    pub holds_resources: HoldableResource,
 }
 
-#[derive(Debug)]
-struct Text {
-    action_or_ongoing_effect_text: String,
-    onetime_effect_text: String,
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Text {
+    pub action_or_ongoing_effect_text: String,
+    pub onetime_effect_text: String,
 }
 
-#[derive(Debug)]
-enum CardType {
+#[derive(Debug, Serialize, Deserialize)]
+pub enum CardType {
     Active,
     Automation,
     Corporation,
@@ -223,8 +223,8 @@ impl From<String> for CardType {
     }
 }
 
-#[derive(Debug)]
-enum Deck {
+#[derive(Debug, Serialize, Deserialize)]
+pub enum Deck {
     Basic,
     Colonies,
     Corporate,
@@ -247,8 +247,8 @@ impl From<String> for Deck {
     }
 }
 
-#[derive(Debug)]
-enum HoldableResource {
+#[derive(Debug, Serialize, Deserialize)]
+pub enum HoldableResource {
     Animals,
     Science,
     Microbes,
@@ -267,8 +267,8 @@ impl From<String> for HoldableResource {
     }
 }
 
-#[derive(Debug)]
-enum NumberOrRef {
+#[derive(Debug, Serialize, Deserialize)]
+pub enum NumberOrRef {
     Number(i32),
     Ref,
 }
@@ -283,8 +283,8 @@ impl From<String> for NumberOrRef {
 }
 
 // TODO create types for common effects
-#[derive(Debug)]
-enum BoolOrRef {
+#[derive(Debug, Serialize, Deserialize)]
+pub enum BoolOrRef {
     No,
     Ref,
 }
