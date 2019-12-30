@@ -8,13 +8,17 @@ use std::io::prelude::*;
 const CARD_FOLDER: &str = "cards/";
 const CARD_LIST: &str = "card_list.csv";
 
-pub fn convert_csv() {
+fn main() {
+    convert_csv(CARD_LIST.to_owned(), CARD_FOLDER.to_owned());
+}
+
+pub fn convert_csv(csv_file: String, out_folder: String) {
     // load path
     let cwd = env::current_dir().unwrap();
     let mut card_list_path = cwd.to_owned();
-    card_list_path.push(CARD_LIST);
+    card_list_path.push(csv_file);
     let mut card_folder_path = cwd.to_owned();
-    card_folder_path.push(CARD_FOLDER);
+    card_folder_path.push(out_folder);
     if !card_folder_path.exists() {
         fs::create_dir(card_folder_path.to_owned()).unwrap();
     }
@@ -31,8 +35,4 @@ pub fn convert_csv() {
         let mut card_file = File::create(card_path).unwrap();
         card_file.write_all(serialized.as_bytes()).unwrap();
     }
-}
-
-fn main() {
-    convert_csv();
 }
