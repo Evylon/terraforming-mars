@@ -3,6 +3,7 @@ name = "terraforming-mars"
 version = "0.1.0"
 authors = ["Evylon <chaos@evylon.de>"]
 edition = "2018"
+default-run = "terraforming-mars"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
