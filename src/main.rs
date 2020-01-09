@@ -2,17 +2,15 @@ use std::path::Path;
 use std::fs::File;
 use std::io::prelude::*;
 
-extern crate rand;
-use rand::seq::SliceRandom;
-
 pub mod game_state;
 pub mod card;
+pub mod card_pile;
 
-use card::Card;
+use card_pile::CardPile;
 
 fn main() {
     // load cards
-    let mut card_pile = CardPile::new();
+    let mut all_cards = Vec::new();
     let path = Path::new("cards/");
     for entry in path.read_dir().unwrap() {
         if let Ok(entry) = entry {
@@ -21,10 +19,12 @@ fn main() {
                 let mut file = File::open(&path).unwrap();
                 let mut content = String::new();
                 file.read_to_string(&mut content).unwrap();
-                card_pile.draw_pile.push(serde_json::from_str(&mut content).unwrap());
+                all_cards.push(serde_json::from_str(&mut content).unwrap());
+                
             }
         }
     }
+    let mut card_pile = CardPile::new(&mut all_cards);
 
     // init game
     let mut my_state = game_state::GameState::new();
@@ -34,46 +34,7 @@ fn main() {
 
     // assign start cards
     for player in my_state.players.iter_mut() {
-        card_pile.draw_cards(player, 10);
+        player.draw_cards(&mut card_pile, 10);
     }
     println!("{:?}", my_state);
-}
-
-struct CardPile {
-    draw_pile: Vec<Card>,
-    discard_pile: Vec<Card>,
-}
-
-impl CardPile {
-    fn new() -> CardPile {
-        CardPile {
-            draw_pile: Vec::new(),
-            discard_pile: Vec::new(),
-        }
-    }
-
-    fn draw_card(&mut self) -> Card {
-        // try drawing a card
-        match self.draw_pile.pop() {
-            Some(card) => card,
-            None => {
-                // shuffle the discard pile into the draw pile
-                let mut rng = rand::thread_rng();
-                &self.discard_pile.shuffle(&mut rng);
-                self.draw_pile.append(&mut self.discard_pile);
-                // finally draw a card 
-                match self.draw_pile.pop() {
-                    Some(card) => card,
-                    // draw pile is empty, panic
-                    None => panic!("Cannot draw card, discard pile and draw pile is empty!")
-                }
-            }
-        }
-    }
-
-    fn draw_cards(&mut self, player: &mut game_state::Player, count: u32) -> () {
-        for _ in 0..count {
-            player.hand.push(self.draw_card());
-        };
-    }
 }

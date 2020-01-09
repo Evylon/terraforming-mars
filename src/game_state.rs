@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 pub use crate::card::Card;
+pub use crate::card_pile::CardPile;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GameState {
@@ -234,5 +235,13 @@ impl GameState {
                 hand: Vec::new(),
             }
         )
+    }
+}
+
+impl Player {
+    pub fn draw_cards(&mut self, card_pile: &mut CardPile, count: u32) -> () {
+        for _ in 0..count {
+            self.hand.push(card_pile.draw_card());
+        };
     }
 }

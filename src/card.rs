@@ -31,7 +31,7 @@ pub fn convert_csv(csv_file: String, out_folder: String) {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Card {
     pub name: String,
     pub id: String,
@@ -133,13 +133,13 @@ impl From<CSVCard> for Card {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Requirements {
     pub global: GlobalRequirements,
     pub local: LocalRequirements,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct GlobalRequirements {
     pub min_temperature: i32,
     pub max_temperature: i32,
@@ -149,7 +149,7 @@ pub struct GlobalRequirements {
     pub max_ocean: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct LocalRequirements {
     pub science: i32,
     pub building: i32,
@@ -164,7 +164,7 @@ pub struct LocalRequirements {
     pub other: BoolOrRef,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Tags {
     pub science: NumberOrRef,
     pub building: NumberOrRef,
@@ -179,7 +179,7 @@ pub struct Tags {
     pub event: NumberOrRef,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Production {
     pub megacredit: NumberOrRef,
     pub steel: NumberOrRef,
@@ -189,7 +189,7 @@ pub struct Production {
     pub heat: NumberOrRef,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Resources {
     pub megacredit: NumberOrRef,
     pub steel: NumberOrRef,
@@ -200,7 +200,7 @@ pub struct Resources {
     pub other: BoolOrRef,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct TerraformingEffect {
     pub temperature: NumberOrRef,
     pub oxygen: NumberOrRef,
@@ -209,7 +209,7 @@ pub struct TerraformingEffect {
     pub vp: NumberOrRef,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Interactions {
     pub tile_placement: BoolOrRef,
     pub num_actions_or_effect: NumberOrRef,
@@ -218,13 +218,13 @@ pub struct Interactions {
     pub holds_resources: HoldableResource,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Text {
     pub action_or_ongoing_effect_text: String,
     pub onetime_effect_text: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum CardType {
     Active,
     Automation,
@@ -246,7 +246,7 @@ impl From<String> for CardType {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum Deck {
     Basic,
     Colonies,
@@ -270,7 +270,7 @@ impl From<String> for Deck {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum HoldableResource {
     Animals,
     Science,
@@ -290,7 +290,7 @@ impl From<String> for HoldableResource {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum NumberOrRef {
     Number(i32),
     Ref,
@@ -306,7 +306,7 @@ impl From<String> for NumberOrRef {
 }
 
 // TODO create types for common effects
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum BoolOrRef {
     No,
     Ref,
@@ -322,7 +322,7 @@ impl From<String> for BoolOrRef {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct CSVCard {
     #[serde(rename = "Card Name")]
     card_name: String,
