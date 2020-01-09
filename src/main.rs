@@ -5,6 +5,7 @@ use std::io::prelude::*;
 pub mod game_state;
 pub mod card;
 pub mod card_pile;
+pub mod player;
 
 use card_pile::CardPile;
 
