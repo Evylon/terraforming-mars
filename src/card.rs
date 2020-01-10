@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::convert::From;
+use std::fmt;
 
 use std::env;
 use std::fs::File;
@@ -39,7 +40,7 @@ pub struct Card {
     pub card_type: CardType,
     pub deck: Deck,
     pub requirements: Requirements,
-    pub tags: Tags,
+    pub tags: Vec<Tags>,
     pub production: Production,
     pub resources: Resources,
     pub terraforming_effect: TerraformingEffect,
@@ -47,96 +48,10 @@ pub struct Card {
     pub text: Text,
 }
 
-impl From<CSVCard> for Card {
-    fn from(csv_card: CSVCard) -> Self {
-        Card {
-            name: csv_card.card_name,
-            id: csv_card.id,
-            cost: match csv_card.cost.parse::<u32>() {
-                Ok(number) => number,
-                Err(_e) => 0
-            },
-            card_type: CardType::from(csv_card.card_type),
-            deck: Deck::from(csv_card.deck),
-            requirements: Requirements {
-                global: GlobalRequirements {
-                    min_temperature: csv_card.req_global_temperature,
-                    max_temperature: csv_card.req_global_max_temperature,
-                    min_oxygen: csv_card.req_global_oxygen,
-                    max_oxygen: csv_card.req_global_max_oxygen,
-                    min_ocean: csv_card.req_global_ocean,
-                    max_ocean: csv_card.req_global_max_ocean,
-                },
-                local: LocalRequirements {
-                    science: csv_card.req_local_science,
-                    building: csv_card.req_local_building,
-                    space: csv_card.req_local_space,
-                    microbe: csv_card.req_local_microbe,
-                    plant: csv_card.req_local_plant,
-                    animal: csv_card.req_local_animal,
-                    city: NumberOrRef::from(csv_card.req_local_city),
-                    earth: csv_card.req_local_earth,
-                    jovian: csv_card.req_local_jovian,
-                    energy: csv_card.req_local_energy,
-                    other: BoolOrRef::from(csv_card.req_local_other),
-                },
-            },
-            tags: Tags {
-                science: NumberOrRef::from(csv_card.tag_science),
-                building: NumberOrRef::from(csv_card.tag_building),
-                space: NumberOrRef::from(csv_card.tag_space),
-                microbe: NumberOrRef::from(csv_card.tag_microbe),
-                plant: NumberOrRef::from(csv_card.tag_plant),
-                animal: NumberOrRef::from(csv_card.tag_animal),
-                city: NumberOrRef::from(csv_card.tag_city),
-                earth: NumberOrRef::from(csv_card.tag_earth),
-                jovian: NumberOrRef::from(csv_card.tag_jovian),
-                energy: NumberOrRef::from(csv_card.tag_energy),
-                event: NumberOrRef::from(csv_card.tag_event),
-            },
-            production: Production {
-                megacredit: NumberOrRef::from(csv_card.prod_megacredit),
-                steel: NumberOrRef::from(csv_card.prod_steel),
-                titanium: NumberOrRef::from(csv_card.prod_titanium),
-                plant: NumberOrRef::from(csv_card.prod_plant),
-                energy: NumberOrRef::from(csv_card.prod_energy),
-                heat: NumberOrRef::from(csv_card.prod_heat),
-            },
-            resources: Resources {
-                megacredit: NumberOrRef::from(csv_card.inv_megacredit),
-                steel: NumberOrRef::from(csv_card.inv_steel),
-                titanium: NumberOrRef::from(csv_card.inv_titanium),
-                plant: NumberOrRef::from(csv_card.inv_plant),
-                energy: NumberOrRef::from(csv_card.inv_energy),
-                heat: NumberOrRef::from(csv_card.inv_heat),
-                other: BoolOrRef::from(csv_card.other_resources_on_cards),
-            },
-            terraforming_effect: TerraformingEffect {
-                temperature: NumberOrRef::from(csv_card.temperature),
-                oxygen: NumberOrRef::from(csv_card.oxygen),
-                ocean: NumberOrRef::from(csv_card.ocean),
-                tr: NumberOrRef::from(csv_card.tr),
-                vp: NumberOrRef::from(csv_card.vp),
-            },
-            interactions: Interactions {
-                tile_placement: BoolOrRef::from(csv_card.tile_colony_placement),
-                num_actions_or_effect: NumberOrRef::from(csv_card.num_actions_and_or_effect),
-                depends_on_opponents: BoolOrRef::from(csv_card.depends_on_opponents),
-                affects_opponents: BoolOrRef::from(csv_card.affects_opponents),
-                holds_resources: HoldableResource::from(csv_card.holds_resources),
-            },
-            text: Text {
-                action_or_ongoing_effect_text: csv_card.action_or_on_going_effect_text,
-                onetime_effect_text: csv_card.one_time_effect_text,
-            }
-        }
-    }
-}
-
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Requirements {
     pub global: GlobalRequirements,
-    pub local: LocalRequirements,
+    pub local: Vec<Tags>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -150,33 +65,52 @@ pub struct GlobalRequirements {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct LocalRequirements {
-    pub science: i32,
-    pub building: i32,
-    pub space: i32,
-    pub microbe: i32,
-    pub plant: i32,
-    pub animal: i32,
-    pub city: NumberOrRef,
-    pub earth: i32,
-    pub jovian: i32,
-    pub energy: i32,
-    pub other: BoolOrRef,
+pub enum Tags {
+    Science,
+    Building,
+    Space,
+    Microbe,
+    Plant,
+    Animal,
+    City,
+    Earth,
+    Jovian,
+    Energy,
+    Event,
+    Special
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Tags {
-    pub science: NumberOrRef,
-    pub building: NumberOrRef,
-    pub space: NumberOrRef,
-    pub microbe: NumberOrRef,
-    pub plant: NumberOrRef,
-    pub animal: NumberOrRef,
-    pub city: NumberOrRef,
-    pub earth: NumberOrRef,
-    pub jovian: NumberOrRef,
-    pub energy: NumberOrRef,
-    pub event: NumberOrRef,
+impl fmt::Display for Tags {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
+impl Tags {
+    fn from_string(number: &String, tag: Tags) -> Vec<Tags> {
+        match number.parse::<usize>() {
+            Err(_e) => match number.as_ref() {
+                "Ref" => vec![Tags::Special],
+                _ => panic!("Cannot convert CSVCard tag to {} Tags::{}!", number, tag),
+            }
+            Ok(count) => vec![tag; count],
+        }
+    }
+
+    // There are cards that require tiles in play, i.e. cities, colonies or greeneries
+    // fn from_city_req(number: &String, card_name: &String) -> Vec<Tags> {
+    //     match number.parse::<usize>() {
+    //         Err(e) => match number.as_ref() {
+    //             "Ref" => match card_name.as_ref() {
+    //                 "Rad-Suits" => vec![Tags::City; 2],
+    //                 "Martian Zoo" => vec![Tags::City; 2],
+    //                 _ => panic!("Cannot convert CSVCard {} city tag to {} Tags::City!", card_name, number),
+    //             }
+    //             _ => panic!("Cannot convert CSVCard {} city tag to {} Tags::City!", card_name, number),
+    //         }
+    //         Ok(count) => vec![Tags::City; count],
+    //     }
+    // }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -322,6 +256,94 @@ impl From<String> for BoolOrRef {
     }
 }
 
+impl From<CSVCard> for Card {
+    fn from(csv_card: CSVCard) -> Self {
+        Card {
+            name: csv_card.card_name,
+            id: csv_card.id,
+            cost: match csv_card.cost.parse::<u32>() {
+                Ok(number) => number,
+                Err(_e) => 0
+            },
+            card_type: CardType::from(csv_card.card_type),
+            deck: Deck::from(csv_card.deck),
+            requirements: Requirements {
+                global: GlobalRequirements {
+                    min_temperature: csv_card.req_global_temperature,
+                    max_temperature: csv_card.req_global_max_temperature,
+                    min_oxygen: csv_card.req_global_oxygen,
+                    max_oxygen: csv_card.req_global_max_oxygen,
+                    min_ocean: csv_card.req_global_ocean,
+                    max_ocean: csv_card.req_global_max_ocean,
+                },
+                // There are cards that require tiles in play, i.e. cities, colonies or greeneries
+                // TODO find a consistent way to deal with them
+                local: vec![
+                    vec![Tags::Science; csv_card.req_local_science as usize],
+                    vec![Tags::Building; csv_card.req_local_building as usize],
+                    vec![Tags::Space; csv_card.req_local_space as usize],
+                    vec![Tags::Microbe; csv_card.req_local_microbe as usize],
+                    vec![Tags::Plant; csv_card.req_local_plant as usize],
+                    vec![Tags::Animal; csv_card.req_local_animal as usize],
+                    Tags::from_string(&csv_card.req_local_city, Tags::City),
+                    vec![Tags::Earth; csv_card.req_local_earth as usize],
+                    vec![Tags::Jovian; csv_card.req_local_jovian as usize],
+                    vec![Tags::Energy; csv_card.req_local_energy as usize],
+                    vec![Tags::Special; match csv_card.req_local_other.as_ref() {"Ref" => 1, _ => 0}],
+                ].concat(),
+            },
+            tags: vec![
+                Tags::from_string(&csv_card.tag_science, Tags::Science),
+                Tags::from_string(&csv_card.tag_building, Tags::Building),
+                Tags::from_string(&csv_card.tag_space, Tags::Space),
+                Tags::from_string(&csv_card.tag_microbe, Tags::Microbe),
+                Tags::from_string(&csv_card.tag_plant, Tags::Plant),
+                Tags::from_string(&csv_card.tag_animal, Tags::Animal),
+                Tags::from_string(&csv_card.tag_city, Tags::City),
+                Tags::from_string(&csv_card.tag_earth, Tags::Earth),
+                Tags::from_string(&csv_card.tag_jovian, Tags::Jovian),
+                Tags::from_string(&csv_card.tag_energy, Tags::Energy),
+                Tags::from_string(&csv_card.tag_event, Tags::Event),
+            ].concat(),
+            production: Production {
+                megacredit: NumberOrRef::from(csv_card.prod_megacredit),
+                steel: NumberOrRef::from(csv_card.prod_steel),
+                titanium: NumberOrRef::from(csv_card.prod_titanium),
+                plant: NumberOrRef::from(csv_card.prod_plant),
+                energy: NumberOrRef::from(csv_card.prod_energy),
+                heat: NumberOrRef::from(csv_card.prod_heat),
+            },
+            resources: Resources {
+                megacredit: NumberOrRef::from(csv_card.inv_megacredit),
+                steel: NumberOrRef::from(csv_card.inv_steel),
+                titanium: NumberOrRef::from(csv_card.inv_titanium),
+                plant: NumberOrRef::from(csv_card.inv_plant),
+                energy: NumberOrRef::from(csv_card.inv_energy),
+                heat: NumberOrRef::from(csv_card.inv_heat),
+                other: BoolOrRef::from(csv_card.other_resources_on_cards),
+            },
+            terraforming_effect: TerraformingEffect {
+                temperature: NumberOrRef::from(csv_card.temperature),
+                oxygen: NumberOrRef::from(csv_card.oxygen),
+                ocean: NumberOrRef::from(csv_card.ocean),
+                tr: NumberOrRef::from(csv_card.tr),
+                vp: NumberOrRef::from(csv_card.vp),
+            },
+            interactions: Interactions {
+                tile_placement: BoolOrRef::from(csv_card.tile_colony_placement),
+                num_actions_or_effect: NumberOrRef::from(csv_card.num_actions_and_or_effect),
+                depends_on_opponents: BoolOrRef::from(csv_card.depends_on_opponents),
+                affects_opponents: BoolOrRef::from(csv_card.affects_opponents),
+                holds_resources: HoldableResource::from(csv_card.holds_resources),
+            },
+            text: Text {
+                action_or_ongoing_effect_text: csv_card.action_or_on_going_effect_text,
+                onetime_effect_text: csv_card.one_time_effect_text,
+            }
+        }
+    }
+}
+
 #[derive(Clone, Debug, Deserialize)]
 pub struct CSVCard {
     #[serde(rename = "Card Name")]
@@ -351,27 +373,27 @@ pub struct CSVCard {
     #[serde(rename = "Req: Max Venus")]
     req_global_max_venus: i32,
     #[serde(rename = "Req: Science")]
-    req_local_science: i32,
+    req_local_science: u32,
     #[serde(rename = "Req: Building")]
-    req_local_building: i32,
+    req_local_building: u32,
     #[serde(rename = "Req: Space")]
-    req_local_space: i32,
+    req_local_space: u32,
     #[serde(rename = "Req: Microbe")]
-    req_local_microbe: i32,
+    req_local_microbe: u32,
     #[serde(rename = "Req: Plant")]
-    req_local_plant: i32,
+    req_local_plant: u32,
     #[serde(rename = "Req: Animal")]
-    req_local_animal: i32,
+    req_local_animal: u32,
     #[serde(rename = "Req: City")]
     req_local_city: String,
     #[serde(rename = "Req: Earth")]
-    req_local_earth: i32,
+    req_local_earth: u32,
     #[serde(rename = "Req: Jovian")]
-    req_local_jovian: i32,
+    req_local_jovian: u32,
     #[serde(rename = "Req: Energy")]
-    req_local_energy: i32,
+    req_local_energy: u32,
     #[serde(rename = "Req: Venus")]
-    req_local_venus: i32,
+    req_local_venus: u32,
     #[serde(rename = "Req: Other")]
     req_local_other: String,
     #[serde(rename = "Tag: Science")]
