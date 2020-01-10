@@ -21,7 +21,6 @@ fn main() {
                 let mut content = String::new();
                 file.read_to_string(&mut content).unwrap();
                 all_cards.push(serde_json::from_str(&mut content).unwrap());
-                
             }
         }
     }
