@@ -143,10 +143,10 @@ pub struct Requirements {
 pub struct GlobalRequirements {
     pub min_temperature: i32,
     pub max_temperature: i32,
-    pub min_oxygen: i32,
-    pub max_oxygen: i32,
-    pub min_ocean: i32,
-    pub max_ocean: i32,
+    pub min_oxygen: u32,
+    pub max_oxygen: u32,
+    pub min_ocean: u32,
+    pub max_ocean: u32,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -337,17 +337,17 @@ pub struct CSVCard {
     #[serde(rename = "Req: Min Temperature")]
     req_global_temperature: i32,
     #[serde(rename = "Req: Min Oxygen")]
-    req_global_oxygen: i32,
+    req_global_oxygen: u32,
     #[serde(rename = "Req: Min Ocean")]
-    req_global_ocean: i32,
+    req_global_ocean: u32,
     #[serde(rename = "Req: Min Venus")]
     req_global_venus: i32,
     #[serde(rename = "Req: Max Temperature")]
     req_global_max_temperature: i32,
     #[serde(rename = "Req: Max Oxygen")]
-    req_global_max_oxygen: i32,
+    req_global_max_oxygen: u32,
     #[serde(rename = "Req: Max Ocean")]
-    req_global_max_ocean: i32,
+    req_global_max_ocean: u32,
     #[serde(rename = "Req: Max Venus")]
     req_global_max_venus: i32,
     #[serde(rename = "Req: Science")]
