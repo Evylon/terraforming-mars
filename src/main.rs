@@ -7,8 +7,6 @@ pub mod project;
 pub mod project_pile;
 pub mod player;
 
-use project_pile::ProjectPile;
-
 fn main() {
     // load projects
     let mut all_projects = Vec::new();
@@ -24,17 +22,11 @@ fn main() {
             }
         }
     }
-    let mut project_pile = ProjectPile::new(&mut all_projects);
-
     // init game
-    let mut my_state = game_state::GameState::new();
-    my_state.add_player();
-    my_state.add_player();
-    my_state.add_player();
-
-    // assign start projects
-    for player in my_state.players.iter_mut() {
-        player.draw_projects(&mut project_pile, 10);
+    let mut my_state = game_state::GameState::new(all_projects.as_mut());
+    for _ in 0..3 {
+        my_state.add_player();
     }
+    my_state.advance_phase();
     println!("{:?}", my_state);
 }

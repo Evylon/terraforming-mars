@@ -6,6 +6,7 @@ pub use crate::project_pile::ProjectPile;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GameState {
+    pub phase: Phase,
     pub generation: u32,
     pub oxygen: u32,
     pub temperature: i32,
@@ -16,6 +17,12 @@ pub struct GameState {
     pub awards: Vec<Award>,
     pub projects_in_play: Vec<OwnedProject>,
     pub players: Vec<Player>,
+    pub project_pile: ProjectPile,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum Phase {
+    Init, Setup, Research, Action, Production,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -89,8 +96,44 @@ pub enum Milestones {
 }
 
 impl GameState {
-    pub fn new() -> GameState {
-        return GameState {
+    pub fn add_player(&mut self) -> () {
+        self.players.push(
+            Player::new(self.players.len() as u32)
+        )
+    }
+
+    pub fn advance_phase(&mut self) -> () {
+        // TODO implement action phase
+        match self.phase {
+            Phase::Init => self.setup_phase(),
+            Phase::Setup => self.phase = Phase::Action,
+            Phase::Research => self.research_phase(),
+            Phase::Action => self.phase = Phase::Action,
+            Phase::Production => self.production_phase(),
+        }
+    }
+
+    fn setup_phase(&mut self) -> () {
+        // TODO assign corporations
+        // assign start projects
+        for player in self.players.iter_mut() {
+            player.research_projects(&mut self.project_pile, 10);
+        }
+    }
+
+    fn research_phase(&mut self) -> () {
+        for player in self.players.iter_mut() {
+            player.research_projects(&mut self.project_pile, 4)
+        }
+    }
+
+    fn production_phase(&mut self) -> () {
+        // TODO
+    }
+
+    pub fn new(deck: &mut Vec<Project>) -> GameState {
+        GameState {
+            phase: Phase::Init,
             generation: 0,
             oxygen: 0,
             temperature: -30,
@@ -177,34 +220,8 @@ impl GameState {
                 Award {name: Awards::Miner, owner: -1},
             ],
             projects_in_play: vec![],
-            players: vec![]
-        };
-    }
-
-    pub fn add_player(&mut self) -> () {
-        self.players.push(
-            Player {
-                id: self.players.len() as u32,
-                tr: 0,
-                corporation: 0,
-                inventory: Inventory {
-                    megacredits: 0,
-                    steel: 0,
-                    titanium: 0,
-                    plants: 0,
-                    energy: 0,
-                    heat: 0,
-                },
-                production: Production {
-                    megacredits: 0,
-                    steel: 0,
-                    titanium: 0,
-                    plants: 0,
-                    energy: 0,
-                    heat: 0,
-                },
-                hand: Vec::new(),
-            }
-        )
+            players: vec![],
+            project_pile: ProjectPile::new(deck.as_mut()),
+        }
     }
 }

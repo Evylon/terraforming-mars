@@ -1,9 +1,11 @@
 use rand::seq::SliceRandom;
+use serde::{Deserialize, Serialize};
 
 extern crate rand;
 
 pub use crate::project::Project;
 
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ProjectPile {
     draw_pile: Vec<Project>,
     disproject_pile: Vec<Project>,

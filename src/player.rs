@@ -11,6 +11,7 @@ pub struct Player {
     pub inventory: Inventory,
     pub production: Production,
     pub hand: Vec<Project>,
+    pub research_queue: Vec<Project>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -34,9 +35,43 @@ pub struct Production {
 }
 
 impl Player {
+    // put projects into research queue, player has to pay 3 megacredits for each if they want to keep it
+    pub fn research_projects(&mut self, project_pile: &mut ProjectPile, count: u32) -> () {
+        for _ in 0..count {
+            self.research_queue.push(project_pile.draw_project());
+        }
+    }
+
+    // draw projects for free
     pub fn draw_projects(&mut self, project_pile: &mut ProjectPile, count: u32) -> () {
         for _ in 0..count {
             self.hand.push(project_pile.draw_project());
         };
+    }
+
+    pub fn new(id: u32) -> Player {
+        Player {
+            id: id,
+            tr: 0,
+            corporation: 0,
+            inventory: Inventory {
+                megacredits: 0,
+                steel: 0,
+                titanium: 0,
+                plants: 0,
+                energy: 0,
+                heat: 0,
+            },
+            production: Production {
+                megacredits: 0,
+                steel: 0,
+                titanium: 0,
+                plants: 0,
+                energy: 0,
+                heat: 0,
+            },
+            hand: Vec::new(),
+            research_queue: Vec::new(),
+        }
     }
 }
