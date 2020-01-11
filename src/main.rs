@@ -3,16 +3,16 @@ use std::fs::File;
 use std::io::prelude::*;
 
 pub mod game_state;
-pub mod patent;
-pub mod patent_pile;
+pub mod project;
+pub mod project_pile;
 pub mod player;
 
-use patent_pile::PatentPile;
+use project_pile::ProjectPile;
 
 fn main() {
-    // load patents
-    let mut all_patents = Vec::new();
-    let path = Path::new("patents/");
+    // load projects
+    let mut all_projects = Vec::new();
+    let path = Path::new("projects/");
     for entry in path.read_dir().unwrap() {
         if let Ok(entry) = entry {
             let path = entry.path();
@@ -20,11 +20,11 @@ fn main() {
                 let mut file = File::open(&path).unwrap();
                 let mut content = String::new();
                 file.read_to_string(&mut content).unwrap();
-                all_patents.push(serde_json::from_str(&mut content).unwrap());
+                all_projects.push(serde_json::from_str(&mut content).unwrap());
             }
         }
     }
-    let mut patent_pile = PatentPile::new(&mut all_patents);
+    let mut project_pile = ProjectPile::new(&mut all_projects);
 
     // init game
     let mut my_state = game_state::GameState::new();
@@ -32,9 +32,9 @@ fn main() {
     my_state.add_player();
     my_state.add_player();
 
-    // assign start patents
+    // assign start projects
     for player in my_state.players.iter_mut() {
-        player.draw_patents(&mut patent_pile, 10);
+        player.draw_projects(&mut project_pile, 10);
     }
     println!("{:?}", my_state);
 }

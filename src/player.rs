@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-pub use crate::patent::Patent;
-pub use crate::patent_pile::PatentPile;
+pub use crate::project::Project;
+pub use crate::project_pile::ProjectPile;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Player {
@@ -10,7 +10,7 @@ pub struct Player {
     pub corporation: u32,
     pub inventory: Inventory,
     pub production: Production,
-    pub hand: Vec<Patent>,
+    pub hand: Vec<Project>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -34,9 +34,9 @@ pub struct Production {
 }
 
 impl Player {
-    pub fn draw_patents(&mut self, patent_pile: &mut PatentPile, count: u32) -> () {
+    pub fn draw_projects(&mut self, project_pile: &mut ProjectPile, count: u32) -> () {
         for _ in 0..count {
-            self.hand.push(patent_pile.draw_patent());
+            self.hand.push(project_pile.draw_project());
         };
     }
 }
