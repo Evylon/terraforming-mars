@@ -1,8 +1,8 @@
-use terraforming_mars::card;
+use terraforming_mars::patent;
 
-const CARD_FOLDER: &str = "cards/";
-const CARD_LIST: &str = "card_list.csv";
+const PATENT_FOLDER: &str = "patents/";
+const PATENT_LIST: &str = "card_list.csv";
 
 fn main() {
-    card::convert_csv(CARD_LIST.to_owned(), CARD_FOLDER.to_owned());
+    patent::convert_csv(PATENT_LIST.to_owned(), PATENT_FOLDER.to_owned());
 }

@@ -1,4 +1,4 @@
-pub mod card;
+pub mod patent;
 pub mod game_state;
-pub mod card_pile;
+pub mod patent_pile;
 pub mod player;
