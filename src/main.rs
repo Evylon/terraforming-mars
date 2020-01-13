@@ -9,7 +9,7 @@ pub mod card_pile;
 
 fn main() {
     // load cards
-    let mut all_cards = Vec::<card::Card>::new();
+    let mut all_cards = Vec::<>::new();
     let path = Path::new("cards/");
     for entry in path.read_dir().unwrap() {
         if let Ok(entry) = entry {
@@ -22,9 +22,9 @@ fn main() {
             }
         }
     }
-    all_cards = all_cards.iter().filter(|card| card.deck == card::Deck::Basic).cloned().collect();
     // init game
-    let mut my_state = game_state::GameState::new(all_cards.as_mut());
+    let used_decks = vec![card::Deck::Basic];
+    let mut my_state = game_state::GameState::new(all_cards.as_mut(), used_decks.as_ref());
     for _ in 0..3 {
         my_state.add_player();
     }

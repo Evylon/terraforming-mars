@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 pub use crate::player::*;
-pub use crate::card::Card;
+pub use crate::card::*;
 pub use crate::card_pile::CardPile;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -18,6 +18,7 @@ pub struct GameState {
     pub cards_in_play: Vec<OwnedCard>,
     pub players: Vec<Player>,
     pub project_pile: CardPile,
+    pub corporation_pile: CardPile,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -131,7 +132,10 @@ impl GameState {
         // TODO
     }
 
-    pub fn new(deck: &mut Vec<Card>) -> GameState {
+    pub fn new(cards: &mut Vec<Card>, used_decks: &Vec<Deck>) -> GameState {
+        let deck: Vec<Card> = cards.iter().filter(|card| used_decks.contains(&card.deck)).cloned().collect();
+        let mut projects: Vec<Card> = deck.iter().filter(|card| card.card_type != CardType::Corporation).cloned().collect();
+        let mut corporations: Vec<Card> = deck.iter().filter(|card| card.card_type == CardType::Corporation).cloned().collect();
         GameState {
             phase: Phase::Init,
             generation: 0,
@@ -221,7 +225,8 @@ impl GameState {
             ],
             cards_in_play: vec![],
             players: vec![],
-            project_pile: CardPile::new(deck.as_mut()),
+            project_pile: CardPile::new(projects.as_mut()),
+            corporation_pile: CardPile::new(corporations.as_mut()),
         }
     }
 }
