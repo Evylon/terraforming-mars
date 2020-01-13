@@ -21,7 +21,9 @@ impl CardPile {
         }
     }
 
-    // pub fn draw_cards(&mut self, count: u32) -> 
+    pub fn draw_cards(&mut self, count: usize) -> Vec<Card> {
+        vec![self.draw_card(); count]
+    }
 
     pub fn draw_card(&mut self) -> Card {
         // try drawing a card
