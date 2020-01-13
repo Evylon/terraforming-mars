@@ -1,4 +1,4 @@
-pub mod project;
+pub mod card;
 pub mod game_state;
-pub mod project_pile;
+pub mod card_pile;
 pub mod player;

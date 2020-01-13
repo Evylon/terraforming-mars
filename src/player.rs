@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-pub use crate::project::Project;
-pub use crate::project_pile::ProjectPile;
+pub use crate::card::Card;
+pub use crate::card_pile::CardPile;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Player {
@@ -10,8 +10,8 @@ pub struct Player {
     pub corporation: u32,
     pub inventory: Inventory,
     pub production: Production,
-    pub hand: Vec<Project>,
-    pub research_queue: Vec<Project>,
+    pub hand: Vec<Card>,
+    pub research_queue: Vec<Card>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -36,16 +36,16 @@ pub struct Production {
 
 impl Player {
     // put projects into research queue, player has to pay 3 megacredits for each if they want to keep it
-    pub fn research_projects(&mut self, project_pile: &mut ProjectPile, count: u32) -> () {
+    pub fn research_projects(&mut self, project_pile: &mut CardPile, count: u32) -> () {
         for _ in 0..count {
-            self.research_queue.push(project_pile.draw_project());
+            self.research_queue.push(project_pile.draw_card());
         }
     }
 
     // draw projects for free
-    pub fn draw_projects(&mut self, project_pile: &mut ProjectPile, count: u32) -> () {
+    pub fn draw_projects(&mut self, project_pile: &mut CardPile, count: u32) -> () {
         for _ in 0..count {
-            self.hand.push(project_pile.draw_project());
+            self.hand.push(project_pile.draw_card());
         };
     }
 

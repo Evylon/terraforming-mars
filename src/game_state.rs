@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 
 pub use crate::player::*;
-pub use crate::project::Project;
-pub use crate::project_pile::ProjectPile;
+pub use crate::card::Card;
+pub use crate::card_pile::CardPile;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GameState {
@@ -15,9 +15,9 @@ pub struct GameState {
     pub special_tiles: Vec<SpecialTile>,
     pub milestones: Vec<Milestone>,
     pub awards: Vec<Award>,
-    pub projects_in_play: Vec<OwnedProject>,
+    pub cards_in_play: Vec<OwnedCard>,
     pub players: Vec<Player>,
-    pub project_pile: ProjectPile,
+    pub project_pile: CardPile,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -55,13 +55,13 @@ pub struct SpecialTile {
 pub enum Resources {
     Steel,
     Titanium,
-    Project,
+    Card,
     Plant,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct OwnedProject {
-    pub project: Project,
+pub struct OwnedCard {
+    pub card: Card,
     pub owner: u32,
 }
 
@@ -115,7 +115,7 @@ impl GameState {
 
     fn setup_phase(&mut self) -> () {
         // TODO assign corporations
-        // assign start projects
+        // assign start cards
         for player in self.players.iter_mut() {
             player.research_projects(&mut self.project_pile, 10);
         }
@@ -131,7 +131,7 @@ impl GameState {
         // TODO
     }
 
-    pub fn new(deck: &mut Vec<Project>) -> GameState {
+    pub fn new(deck: &mut Vec<Card>) -> GameState {
         GameState {
             phase: Phase::Init,
             generation: 0,
@@ -142,15 +142,15 @@ impl GameState {
                 Tile {x: 0, z: 4, tile_type: TileType::Empty, name: "".to_owned(), resources: vec![Resources::Steel, Resources::Steel], reserved: TileType::Empty},
                 Tile {x: 0, z: 5, tile_type: TileType::Empty, name: "".to_owned(), resources: vec![Resources::Steel, Resources::Steel], reserved: TileType::Ocean},
                 Tile {x: 0, z: 6, tile_type: TileType::Empty, name: "".to_owned(), resources: vec![], reserved: TileType::Empty},
-                Tile {x: 0, z: 7, tile_type: TileType::Empty, name: "".to_owned(), resources: vec![Resources::Project], reserved: TileType::Ocean},
+                Tile {x: 0, z: 7, tile_type: TileType::Empty, name: "".to_owned(), resources: vec![Resources::Card], reserved: TileType::Ocean},
                 Tile {x: 0, z: 8, tile_type: TileType::Empty, name: "".to_owned(), resources: vec![], reserved: TileType::Ocean},
                 Tile {x: 1, z: 3, tile_type: TileType::Empty, name: "".to_owned(), resources: vec![], reserved: TileType::Empty},
                 Tile {x: 1, z: 4, tile_type: TileType::Empty, name: "Tharsis Tholus".to_owned(), resources: vec![Resources::Steel], reserved: TileType::Empty},
                 Tile {x: 1, z: 5, tile_type: TileType::Empty, name: "".to_owned(), resources: vec![], reserved: TileType::Empty},
                 Tile {x: 1, z: 6, tile_type: TileType::Empty, name: "".to_owned(), resources: vec![], reserved: TileType::Empty},
                 Tile {x: 1, z: 7, tile_type: TileType::Empty, name: "".to_owned(), resources: vec![], reserved: TileType::Empty},
-                Tile {x: 1, z: 8, tile_type: TileType::Empty, name: "".to_owned(), resources: vec![Resources::Project, Resources::Project], reserved: TileType::Ocean},
-                Tile {x: 2, z: 2, tile_type: TileType::Empty, name: "Ascraeus Mons".to_owned(), resources: vec![Resources::Project], reserved: TileType::Empty},
+                Tile {x: 1, z: 8, tile_type: TileType::Empty, name: "".to_owned(), resources: vec![Resources::Card, Resources::Card], reserved: TileType::Ocean},
+                Tile {x: 2, z: 2, tile_type: TileType::Empty, name: "Ascraeus Mons".to_owned(), resources: vec![Resources::Card], reserved: TileType::Empty},
                 Tile {x: 2, z: 3, tile_type: TileType::Empty, name: "".to_owned(), resources: vec![], reserved: TileType::Empty},
                 Tile {x: 2, z: 4, tile_type: TileType::Empty, name: "".to_owned(), resources: vec![], reserved: TileType::Empty},
                 Tile {x: 2, z: 5, tile_type: TileType::Empty, name: "".to_owned(), resources: vec![], reserved: TileType::Empty},
@@ -191,8 +191,8 @@ impl GameState {
                 Tile {x: 6, z: 6, tile_type: TileType::Empty, name: "".to_owned(), resources: vec![], reserved: TileType::Empty},
                 Tile {x: 7, z: 0, tile_type: TileType::Empty, name: "".to_owned(), resources: vec![Resources::Steel, Resources::Steel], reserved: TileType::Empty},
                 Tile {x: 7, z: 1, tile_type: TileType::Empty, name: "".to_owned(), resources: vec![], reserved: TileType::Empty},
-                Tile {x: 7, z: 2, tile_type: TileType::Empty, name: "".to_owned(), resources: vec![Resources::Project], reserved: TileType::Empty},
-                Tile {x: 7, z: 3, tile_type: TileType::Empty, name: "".to_owned(), resources: vec![Resources::Project], reserved: TileType::Empty},
+                Tile {x: 7, z: 2, tile_type: TileType::Empty, name: "".to_owned(), resources: vec![Resources::Card], reserved: TileType::Empty},
+                Tile {x: 7, z: 3, tile_type: TileType::Empty, name: "".to_owned(), resources: vec![Resources::Card], reserved: TileType::Empty},
                 Tile {x: 7, z: 4, tile_type: TileType::Empty, name: "".to_owned(), resources: vec![], reserved: TileType::Empty},
                 Tile {x: 7, z: 5, tile_type: TileType::Empty, name: "".to_owned(), resources: vec![Resources::Titanium], reserved: TileType::Empty},
                 Tile {x: 8, z: 0, tile_type: TileType::Empty, name: "".to_owned(), resources: vec![Resources::Steel], reserved: TileType::Empty},
@@ -219,9 +219,9 @@ impl GameState {
                 Award {name: Awards::Thermalist, owner: -1},
                 Award {name: Awards::Miner, owner: -1},
             ],
-            projects_in_play: vec![],
+            cards_in_play: vec![],
             players: vec![],
-            project_pile: ProjectPile::new(deck.as_mut()),
+            project_pile: CardPile::new(deck.as_mut()),
         }
     }
 }

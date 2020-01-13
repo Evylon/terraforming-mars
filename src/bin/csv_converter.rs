@@ -1,8 +1,8 @@
-use terraforming_mars::project;
+use terraforming_mars::card::convert_csv;
 
-const PROJECT_FOLDER: &str = "projects/";
-const PROJECT_LIST: &str = "card_list.csv";
+const CARD_FOLDER: &str = "cards/";
+const CARD_LIST: &str = "card_list.csv";
 
 fn main() {
-    project::convert_csv(PROJECT_LIST.to_owned(), PROJECT_FOLDER.to_owned());
+    convert_csv(CARD_LIST.to_owned(), CARD_FOLDER.to_owned());
 }

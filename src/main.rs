@@ -3,14 +3,14 @@ use std::fs::File;
 use std::io::prelude::*;
 
 pub mod game_state;
-pub mod project;
-pub mod project_pile;
+pub mod card;
 pub mod player;
+pub mod card_pile;
 
 fn main() {
-    // load projects
-    let mut all_projects = Vec::new();
-    let path = Path::new("projects/");
+    // load cards
+    let mut all_cards = Vec::<card::Card>::new();
+    let path = Path::new("cards/");
     for entry in path.read_dir().unwrap() {
         if let Ok(entry) = entry {
             let path = entry.path();
@@ -18,12 +18,13 @@ fn main() {
                 let mut file = File::open(&path).unwrap();
                 let mut content = String::new();
                 file.read_to_string(&mut content).unwrap();
-                all_projects.push(serde_json::from_str(&mut content).unwrap());
+                all_cards.push(serde_json::from_str(&mut content).unwrap());
             }
         }
     }
+    all_cards = all_cards.iter().filter(|card| card.deck == card::Deck::Basic).cloned().collect();
     // init game
-    let mut my_state = game_state::GameState::new(all_projects.as_mut());
+    let mut my_state = game_state::GameState::new(all_cards.as_mut());
     for _ in 0..3 {
         my_state.add_player();
     }
