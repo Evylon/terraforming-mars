@@ -8,6 +8,7 @@ pub use crate::card_pile::CardPile;
 pub struct GameState {
     pub phase: Phase,
     pub generation: u32,
+    pub active_player: u32,
     pub oxygen: u32,
     pub temperature: i32,
     pub oceans_placed: u32,
@@ -139,6 +140,7 @@ impl GameState {
         GameState {
             phase: Phase::Init,
             generation: 0,
+            active_player: 0,
             oxygen: 0,
             temperature: -30,
             oceans_placed: 0,
