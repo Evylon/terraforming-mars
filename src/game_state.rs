@@ -108,7 +108,7 @@ impl GameState {
         // TODO implement action phase
         match self.phase {
             Phase::Init => self.setup_phase(),
-            Phase::Setup => self.phase = Phase::Action,
+            Phase::Setup => self.transition_setup_to_action().unwrap(),
             Phase::Research => self.research_phase(),
             Phase::Action => self.phase = Phase::Action,
             Phase::Production => self.production_phase(),
@@ -123,6 +123,22 @@ impl GameState {
         for player in self.players.iter_mut() {
             player.enqueue_research(self.project_pile.draw_cards(10).as_mut());
         }
+    }
+
+    fn transition_setup_to_action(&mut self) -> Result<(), ()> {
+        // all players have to choose a corporation
+        if self.players.iter().any(|p| p.corporation.is_none()) {
+            return Err(());
+        }
+        // players may hold only projects, no corporations
+        if self.players.iter().flat_map(|p| &p.hand).any(|card| card.card_type == CardType::Corporation) {
+            return Err(());
+        }
+        // all players have to empty their research queue
+        if !self.players.iter().all(|p| p.research_queue.is_empty()) {
+            return Err(());
+        }
+        Ok(())
     }
 
     fn research_phase(&mut self) -> () {
