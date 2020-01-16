@@ -6,8 +6,8 @@ pub use crate::card_pile::CardPile;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Player {
     pub id: u32,
-    pub tr: i32,
-    pub corporation: u32,
+    pub tf_rating: i32,
+    pub corporation: Option<Card>,
     pub inventory: Inventory,
     pub production: Production,
     pub hand: Vec<Card>,
@@ -35,15 +35,19 @@ pub struct Production {
 }
 
 impl Player {
-    pub fn enqueue_research(&mut self, project_pile: &mut CardPile, count: usize) -> () {
-        self.research_queue.append(project_pile.draw_cards(count).as_mut());
+    pub fn enqueue_research(&mut self, projects: &mut Vec<Card>) -> () {
+        self.research_queue.append(projects);
+    }
+
+    pub fn draft_corporations(&mut self, corporations: &mut Vec<Card>) -> () {
+        self.hand.append(corporations);
     }
 
     pub fn new(id: u32) -> Player {
         Player {
             id: id,
-            tr: 0,
-            corporation: 0,
+            tf_rating: 20,
+            corporation: None,
             inventory: Inventory {
                 megacredits: 0,
                 steel: 0,
@@ -53,12 +57,12 @@ impl Player {
                 heat: 0,
             },
             production: Production {
-                megacredits: 0,
-                steel: 0,
-                titanium: 0,
-                plants: 0,
-                energy: 0,
-                heat: 0,
+                megacredits: 1,
+                steel: 1,
+                titanium: 1,
+                plants: 1,
+                energy: 1,
+                heat: 1,
             },
             hand: Vec::new(),
             research_queue: Vec::new(),

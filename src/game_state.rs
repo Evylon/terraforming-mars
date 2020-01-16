@@ -116,16 +116,18 @@ impl GameState {
     }
 
     fn setup_phase(&mut self) -> () {
-        // TODO assign corporations
+        for player in self.players.iter_mut() {
+            player.draft_corporations(self.corporation_pile.draw_cards(2).as_mut());
+        }
         // assign start cards
         for player in self.players.iter_mut() {
-            player.enqueue_research(&mut self.project_pile, 10);
+            player.enqueue_research(self.project_pile.draw_cards(10).as_mut());
         }
     }
 
     fn research_phase(&mut self) -> () {
         for player in self.players.iter_mut() {
-            player.research_queue.append(self.project_pile.draw_cards(4).as_mut());
+            player.enqueue_research(self.project_pile.draw_cards(4).as_mut());
         }
     }
 
