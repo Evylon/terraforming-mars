@@ -7,8 +7,8 @@ pub use crate::card::Card;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CardPile {
-    draw_pile: Vec<Card>,
-    discard_pile: Vec<Card>,
+    pub draw_pile: Vec<Card>,
+    pub discard_pile: Vec<Card>,
 }
 
 impl CardPile {
