@@ -34,6 +34,11 @@ pub struct Production {
     pub heat: i32
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub enum Resource {
+    MegaCredits, Steel, Titanium, Plants, Energy, Heat
+}
+
 impl Player {
     pub fn enqueue_research(&mut self, projects: &mut Vec<Card>) -> () {
         self.research_queue.append(projects);
