@@ -100,8 +100,12 @@ pub enum Milestones {
 impl GameState {
     pub fn add_player(&mut self) -> () {
         self.players.push(
-            Player::new(self.players.len() as u32)
+            Player::new(self.players.len())
         )
+    }
+
+    pub fn get_player(&mut self, id: usize) -> &mut Player {
+        &mut self.players[id]
     }
 
     pub fn advance_phase(&mut self) -> () {

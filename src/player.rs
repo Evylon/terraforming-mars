@@ -5,7 +5,7 @@ pub use crate::card_pile::CardPile;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Player {
-    pub id: u32,
+    pub id: usize,
     pub tf_rating: i32,
     pub corporation: Option<Card>,
     pub inventory: Inventory,
@@ -43,7 +43,7 @@ impl Player {
         self.hand.append(corporations);
     }
 
-    pub fn new(id: u32) -> Player {
+    pub fn new(id: usize) -> Player {
         Player {
             id: id,
             tf_rating: 20,
