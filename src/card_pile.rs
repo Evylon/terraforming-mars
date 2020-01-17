@@ -22,7 +22,7 @@ impl CardPile {
     }
 
     pub fn draw_cards(&mut self, count: usize) -> Vec<Card> {
-        vec![self.draw_card(); count]
+        vec![0; count].iter().map(|_| self.draw_card()).collect()
     }
 
     pub fn draw_card(&mut self) -> Card {
