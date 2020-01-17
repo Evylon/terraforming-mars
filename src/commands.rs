@@ -36,7 +36,7 @@ impl Command<GameState> for DrawCards {
     }
 }
 
-pub struct AddResources{pub player_id: usize, pub rescs: Vec::<Resource>}
+pub struct AddResources{pub player_id: usize, pub rescs: Vec<Resource>}
 
 fn increment_resource(player: &mut Player, res: &Resource) -> () {
     match res {
