@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 pub use crate::player::*;
 pub use crate::card::*;
 pub use crate::card_pile::CardPile;
+pub use crate::commands::*;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GameState {
@@ -108,52 +109,6 @@ impl GameState {
         &mut self.players[id]
     }
 
-    pub fn advance_phase(&mut self) -> () {
-        // TODO implement action phase
-        match self.phase {
-            Phase::Init => self.setup_phase(),
-            Phase::Setup => self.transition_setup_to_action().unwrap(),
-            Phase::Research => self.research_phase(),
-            Phase::Action => self.phase = Phase::Action,
-            Phase::Production => self.production_phase(),
-        }
-    }
-
-    fn setup_phase(&mut self) -> () {
-        for player in self.players.iter_mut() {
-            player.draft_corporations(self.corporation_pile.draw_cards(2).as_mut());
-        }
-        // assign start cards
-        for player in self.players.iter_mut() {
-            player.enqueue_research(self.project_pile.draw_cards(10).as_mut());
-        }
-    }
-
-    fn transition_setup_to_action(&mut self) -> Result<(), ()> {
-        // all players have to choose a corporation
-        if self.players.iter().any(|p| p.corporation.is_none()) {
-            return Err(());
-        }
-        // players may hold only projects, no corporations
-        if self.players.iter().flat_map(|p| &p.hand).any(|card| card.card_type == CardType::Corporation) {
-            return Err(());
-        }
-        // all players have to empty their research queue
-        if !self.players.iter().all(|p| p.research_queue.is_empty()) {
-            return Err(());
-        }
-        Ok(())
-    }
-
-    fn research_phase(&mut self) -> () {
-        for player in self.players.iter_mut() {
-            player.enqueue_research(self.project_pile.draw_cards(4).as_mut());
-        }
-    }
-
-    fn production_phase(&mut self) -> () {
-        // TODO
-    }
 
     pub fn new(cards: &mut Vec<Card>, used_decks: &Vec<Deck>) -> GameState {
         let deck: Vec<Card> = cards.iter().filter(|card| used_decks.contains(&card.deck)).cloned().collect();

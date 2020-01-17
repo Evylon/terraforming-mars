@@ -1,7 +1,6 @@
 use std::path::Path;
 use std::fs::File;
 use std::io::prelude::*;
-use undo::Record;
 
 pub mod game_state;
 pub mod card;
@@ -27,10 +26,12 @@ fn main() {
     // init game
     let used_decks = vec![card::Deck::Basic];
     let mut my_state = game_state::GameState::new(all_cards.as_mut(), used_decks.as_ref());
-    for _ in 0..3 {
+    for _ in 0..2 {
         my_state.add_player();
     }
-    let mut record = Record::builder().build(my_state);
-    record.apply(commands::AddResources{player_id: 0, rescs: vec![player::Resource::Energy; 2]}).unwrap();
-    println!("{:?}", record.as_target().players);
+    let mut state_machine = commands::StateMachine::new(my_state);
+    state_machine.apply(commands::AddResources{player_id: 0, rescs: vec![player::Resource::Energy; 2]}).unwrap();
+    println!("{:?}", state_machine.get_state().players);
+    state_machine.advance_phase();
+    println!("{:?}", state_machine.get_state().players);
 }
