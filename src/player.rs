@@ -34,7 +34,7 @@ pub struct Production {
     pub heat: i32
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Resource {
     MegaCredits, Steel, Titanium, Plants, Energy, Heat
 }

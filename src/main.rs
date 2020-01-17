@@ -1,11 +1,13 @@
 use std::path::Path;
 use std::fs::File;
 use std::io::prelude::*;
+use undo::Record;
 
 pub mod game_state;
 pub mod card;
 pub mod player;
 pub mod card_pile;
+pub mod commands;
 
 fn main() {
     // load cards
@@ -28,6 +30,7 @@ fn main() {
     for _ in 0..3 {
         my_state.add_player();
     }
-    my_state.advance_phase();
-    println!("{:?}", my_state);
+    let mut record = Record::builder().build(my_state);
+    record.apply(commands::AddResources{player_id: 0, rescs: vec![player::Resource::Energy; 2]}).unwrap();
+    println!("{:?}", record.as_target().players);
 }
