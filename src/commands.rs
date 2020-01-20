@@ -39,16 +39,6 @@ impl Command<GameState> for DrawCards {
 
 pub struct ResearchCards{pub player_id: usize, pub card_ids: Vec<String>}
 
-#[derive(Debug)]
-pub struct CannotBuyCards{reason: String}
-
-impl fmt::Display for CannotBuyCards {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.reason)
-    }
-}
-impl Error for CannotBuyCards {}
-
 const CARD_COST: u32 = 3;
 
 impl Command<GameState> for ResearchCards {
@@ -56,11 +46,11 @@ impl Command<GameState> for ResearchCards {
         let player = game_state.get_player(self.player_id);
         // validate consistent ids in research_queue and card_ids
         if player.research_queue.iter().filter(|c| self.card_ids.contains(&c.id)).count() != self.card_ids.len() {
-            return Err(Box::new(CannotBuyCards{reason: "card_ids and research_queue did not match".to_owned()}));
+            return Err(Box::new(CannotExecute{reason: "card_ids and research_queue did not match".to_owned()}));
         }
         // check if player has sufficient funds
         if player.inventory.megacredits < self.card_ids.len() as u32 * CARD_COST {
-            return Err(Box::new(CannotBuyCards{reason: "Cannot buy cards, not enough Megacredits!".to_owned()}));
+            return Err(Box::new(CannotExecute{reason: "Cannot buy cards, not enough Megacredits!".to_owned()}));
         }
         // move cards from research_queue to player.hand while retaining the projects not researched
         let (mut research_queue, mut not_researched): (Vec<Card>, Vec<Card>) = player.research_queue.drain(..).partition(|c| self.card_ids.contains(&c.id));
@@ -86,7 +76,7 @@ impl Command<GameState> for DiscardResearch {
         let player = game_state.get_player(self.player_id);
         // validate consistent ids in research_queue and card_ids
         if player.research_queue.iter().filter(|c| self.card_ids.contains(&c.id)).count() != self.card_ids.len() {
-            return Err(Box::new(CannotBuyCards{reason: "card_ids and research_queue did not match".to_owned()}));
+            return Err(Box::new(CannotExecute{reason: "card_ids and research_queue did not match".to_owned()}));
         }
         // collect cards to discard while retaining the cards not discarded
         let (mut discard_queue, mut not_discarded): (Vec<Card>, Vec<Card>) = player.research_queue.drain(..).partition(|c| self.card_ids.contains(&c.id));
@@ -209,3 +199,13 @@ impl StateMachine {
         // TODO
     }
 }
+
+#[derive(Debug)]
+pub struct CannotExecute{reason: String}
+
+impl fmt::Display for CannotExecute {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.reason)
+    }
+}
+impl Error for CannotExecute {}
