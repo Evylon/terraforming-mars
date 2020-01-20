@@ -30,12 +30,14 @@ fn main() {
         my_state.add_player();
     }
     let mut state_machine = commands::StateMachine::new(my_state);
-    state_machine.apply(commands::AddResources{player_id: 0, rescs: vec![player::Resource::Energy; 2]}).unwrap();
+    state_machine.apply(commands::AddResources{player_id: 0, rescs: vec![player::Resource::MegaCredits; 30]}).unwrap();
     println!("{:?}", state_machine.get_state().players[0]);
     state_machine.advance_phase();
     println!("{:?}", state_machine.get_state().players[0]);
     let mut card_ids: Vec<String> = state_machine.get_state().players[0].research_queue.iter().map(|c| c.id.to_owned()).collect();
-    card_ids = card_ids.split_off(card_ids.len() / 2);
-    state_machine.apply(commands::ResearchCards{player_id: 0, card_ids: card_ids}).unwrap();
+    let research_ids = card_ids.split_off(card_ids.len() / 2);
+    state_machine.apply(commands::ResearchCards{player_id: 0, card_ids: research_ids}).unwrap();
+    println!("{:?}", state_machine.get_state().players[0]);
+    state_machine.apply(commands::DiscardResearch{player_id: 0, card_ids: card_ids}).unwrap();
     println!("{:?}", state_machine.get_state().players[0]);
 }

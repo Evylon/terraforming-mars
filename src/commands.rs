@@ -1,4 +1,5 @@
 use undo::{Command, Record};
+use std::{error::Error, fmt};
 
 use crate::player::{Player, Resource};
 use crate::game_state::*;
@@ -38,25 +39,67 @@ impl Command<GameState> for DrawCards {
 
 pub struct ResearchCards{pub player_id: usize, pub card_ids: Vec<String>}
 
+#[derive(Debug)]
+pub struct CannotBuyCards{reason: String}
+
+impl fmt::Display for CannotBuyCards {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.reason)
+    }
+}
+impl Error for CannotBuyCards {}
+
+const CARD_COST: u32 = 3;
+
 impl Command<GameState> for ResearchCards {
     fn apply(&mut self, game_state: &mut GameState) -> undo::Result {
         let player = game_state.get_player(self.player_id);
-        let mut researched = Vec::new();
-        let mut discarded = Vec::new();
-        for card in player.research_queue.drain(..) {
-            if self.card_ids.contains(&card.id) {
-                researched.push(card);
-            } else {
-                discarded.push(card);
-            }
+        // validate consistent ids in research_queue and card_ids
+        if player.research_queue.iter().filter(|c| self.card_ids.contains(&c.id)).count() != self.card_ids.len() {
+            return Err(Box::new(CannotBuyCards{reason: "card_ids and research_queue did not match".to_owned()}));
         }
-        // TODO check if projects can be researched
-        player.hand.append(researched.as_mut());
-        game_state.project_pile.discard_pile.append(discarded.as_mut());
+        // check if player has sufficient funds
+        if player.inventory.megacredits < self.card_ids.len() as u32 * CARD_COST {
+            return Err(Box::new(CannotBuyCards{reason: "Cannot buy cards, not enough Megacredits!".to_owned()}));
+        }
+        // move cards from research_queue to player.hand while retaining the projects not researched
+        let (mut research_queue, mut not_researched): (Vec<Card>, Vec<Card>) = player.research_queue.drain(..).partition(|c| self.card_ids.contains(&c.id));
+        player.research_queue.append(not_researched.as_mut());
+        player.hand.append(research_queue.as_mut());
         Ok(())
     }
 
     fn undo(&mut self, game_state: &mut GameState) -> undo::Result {
+        let player = game_state.get_player(self.player_id);
+        // new cards are always appended. just return last n cards to the research_queue
+        let first_idx = player.hand.len() - self.card_ids.len();
+        let mut cards = player.hand.drain(first_idx..).collect::<Vec<Card>>();
+        player.research_queue.append(cards.as_mut());
+        Ok(())
+    }
+}
+
+pub struct DiscardResearch{pub player_id: usize, pub card_ids: Vec<String>}
+
+impl Command<GameState> for DiscardResearch {
+    fn apply(&mut self, game_state: &mut GameState) -> undo::Result {
+        let player = game_state.get_player(self.player_id);
+        // validate consistent ids in research_queue and card_ids
+        if player.research_queue.iter().filter(|c| self.card_ids.contains(&c.id)).count() != self.card_ids.len() {
+            return Err(Box::new(CannotBuyCards{reason: "card_ids and research_queue did not match".to_owned()}));
+        }
+        // collect cards to discard while retaining the cards not discarded
+        let (mut discard_queue, mut not_discarded): (Vec<Card>, Vec<Card>) = player.research_queue.drain(..).partition(|c| self.card_ids.contains(&c.id));
+        player.research_queue.append(not_discarded.as_mut());
+        game_state.project_pile.discard_cards(discard_queue.as_mut());
+        Ok(())
+    }
+
+    fn undo(&mut self, game_state: &mut GameState) -> undo::Result {
+        // new cards are always appended. just return last n cards to the research_queue
+        let first_idx = game_state.project_pile.discard_pile.len() - self.card_ids.len();
+        let mut cards = game_state.project_pile.discard_pile.drain(first_idx..).collect::<Vec<Card>>();
+        game_state.get_player(self.player_id).research_queue.append(cards.as_mut());
         Ok(())
     }
 }
