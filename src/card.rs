@@ -7,8 +7,6 @@ use std::fs::File;
 use std::fs;
 use std::io::prelude::*;
 
-use crate::player::*;
-
 pub fn convert_csv(csv_file: String, out_folder: String) {
     // load path
     let cwd = env::current_dir().unwrap();
@@ -31,20 +29,6 @@ pub fn convert_csv(csv_file: String, out_folder: String) {
         card_path.set_extension("json");
         let mut card_file = File::create(card_path).unwrap();
         card_file.write_all(serialized.as_bytes()).unwrap();
-    }
-}
-
-pub struct CannotBuyCard;
-
-impl Card {
-    pub fn buy(self, buyer: &mut Player) -> Result<(), CannotBuyCard> {
-        if buyer.inventory.megacredits < 3 && self.card_type != CardType::Corporation {
-            buyer.inventory.megacredits -= 3;
-            buyer.hand.push(self);
-            Ok(())
-        } else {
-            Err(CannotBuyCard)
-        }
     }
 }
 
