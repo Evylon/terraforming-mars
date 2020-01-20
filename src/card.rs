@@ -259,8 +259,11 @@ impl From<String> for BoolOrRef {
 impl From<CSVCard> for Card {
     fn from(csv_card: CSVCard) -> Self {
         Card {
-            name: csv_card.card_name,
-            id: csv_card.id,
+            name: csv_card.card_name.to_owned(),
+            id: match csv_card.id.len() {
+                0 => csv_card.card_name,
+                _ => csv_card.id
+            },
             cost: match csv_card.cost.parse::<u32>() {
                 Ok(number) => number,
                 Err(_e) => 0
