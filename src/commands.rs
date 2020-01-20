@@ -36,6 +36,31 @@ impl Command<GameState> for DrawCards {
     }
 }
 
+pub struct ResearchCards{pub player_id: usize, pub card_ids: Vec<String>}
+
+impl Command<GameState> for ResearchCards {
+    fn apply(&mut self, game_state: &mut GameState) -> undo::Result {
+        let player = game_state.get_player(self.player_id);
+        let mut researched = Vec::new();
+        let mut discarded = Vec::new();
+        for card in player.research_queue.drain(..) {
+            if self.card_ids.contains(&card.id) {
+                researched.push(card);
+            } else {
+                discarded.push(card);
+            }
+        }
+        // TODO check if projects can be researched
+        player.hand.append(researched.as_mut());
+        game_state.project_pile.discard_pile.append(discarded.as_mut());
+        Ok(())
+    }
+
+    fn undo(&mut self, game_state: &mut GameState) -> undo::Result {
+        Ok(())
+    }
+}
+
 pub struct AddResources{pub player_id: usize, pub rescs: Vec<Resource>}
 
 fn increment_resource(player: &mut Player, res: &Resource) -> () {
