@@ -43,4 +43,12 @@ impl CardPile {
             }
         }
     }
+
+    pub fn discard(&mut self, card: Card) -> () {
+        self.discard_pile.push(card)
+    }
+
+    pub fn discard_cards(&mut self, cards: &mut Vec<Card>) -> () {
+        self.discard_pile.append(cards)
+    }
 }
