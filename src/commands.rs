@@ -60,8 +60,6 @@ impl Command<GameState> for PlayCard {
         };
         // TODO
         // check requirements
-        // modify resources
-        // trigger effects
         game_state.cards_in_play.push(OwnedCard{card: card, owner: self.owner_id});
         Ok(())
     }
@@ -73,9 +71,6 @@ impl Command<GameState> for PlayCard {
         };
         let player = game_state.get_player_mut(self.owner_id);
         player.inventory.megacredits += owned_card.card.cost;
-        // TODO
-        // untrigger effects
-        // modify resources
         player.hand.push(owned_card.card);
         Ok(())
     }
@@ -94,9 +89,6 @@ impl Command<GameState> for ChooseCorporation {
             Some(card) => player.corporation = Some(card),
             None => return Err(Box::new(CannotExecute{reason: format!("Corporation {} not found in player {}'s hand!", self.card_id, self.player_id)})),
         }
-        // TODO
-        // modify resources
-        // trigger effects
         game_state.corporation_pile.discard_cards(rejected.as_mut());
         Ok(())
     }
@@ -107,9 +99,6 @@ impl Command<GameState> for ChooseCorporation {
         let player = game_state.get_player_mut(self.player_id);
         coorps.push(player.corporation.take().unwrap());
         player.hand.append(coorps.as_mut());
-        // TODO
-        // untrigger effects
-        // modify resources
         Ok(())
     }
 }
@@ -198,7 +187,7 @@ impl Command<GameState> for ModResources {
     fn undo(&mut self, game_state: &mut GameState) -> undo::Result {
         let player = game_state.get_player_mut(self.player_id);
         for res in self.rescs.iter() {
-            // we can always undo add
+            // we can always undo
             let (inv, count) = match *res {
                 Resource::MegaCredits(count) => (&mut player.inventory.megacredits, count),
                 Resource::Steel(count) => (&mut player.inventory.steel, count),
@@ -246,9 +235,6 @@ impl StateMachine {
         self.record.as_target()
     }
 
-    // pub fn apply(&mut self, command: impl Command<GameState> + 'static) -> undo::Result {
-    //     self.record.apply(command)
-    // }
     pub fn apply(&mut self, command: CmdWrapper) -> undo::Result {
         match command {
             CmdWrapper::ModResources(cmd) => self.record.apply(cmd),
@@ -257,7 +243,6 @@ impl StateMachine {
             CmdWrapper::ResearchCards(cmd) => self.research_card(cmd),
             CmdWrapper::ChooseCorporation(cmd) => self.play_card(cmd.player_id, cmd.card_id.to_owned(), cmd),
         }
-        // self.record.apply(command)
     }
 
     fn research_card(&mut self, command: ResearchCards) -> undo::Result {
@@ -277,7 +262,7 @@ impl StateMachine {
         queue.apply(command);
         queue.apply(rescs_cmd);
         // TODO production
-        // TODO one-time Actions
+        // TODO one-time Actions/effects
         queue.commit()
     }
 
