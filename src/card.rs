@@ -7,6 +7,8 @@ use std::fs::File;
 use std::fs;
 use std::io::prelude::*;
 
+use crate::player::Resource;
+
 pub fn convert_csv(csv_file: String, out_folder: String) {
     // load path
     let cwd = env::current_dir().unwrap();
@@ -41,8 +43,9 @@ pub struct Card {
     pub deck: Deck,
     pub requirements: Requirements,
     pub tags: Vec<Tags>,
-    pub production: Production,
-    pub resources: Resources,
+    pub production: Vec<Resource>,
+    pub resources: Vec<Resource>,
+    pub resources_on_card: HoldableResource,
     pub terraforming_effect: TerraformingEffect,
     pub interactions: Interactions,
     pub text: Text,
@@ -114,27 +117,6 @@ impl Tags {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Production {
-    pub megacredit: NumberOrRef,
-    pub steel: NumberOrRef,
-    pub titanium: NumberOrRef,
-    pub plant: NumberOrRef,
-    pub energy: NumberOrRef,
-    pub heat: NumberOrRef,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Resources {
-    pub megacredit: NumberOrRef,
-    pub steel: NumberOrRef,
-    pub titanium: NumberOrRef,
-    pub plant: NumberOrRef,
-    pub energy: NumberOrRef,
-    pub heat: NumberOrRef,
-    pub other: BoolOrRef,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct TerraformingEffect {
     pub temperature: NumberOrRef,
     pub oxygen: NumberOrRef,
@@ -165,6 +147,7 @@ pub enum CardType {
     Corporation,
     Event,
     Prelude,
+    Project,
 }
 
 impl From<String> for CardType {
@@ -209,6 +192,7 @@ pub enum HoldableResource {
     Animals,
     Science,
     Microbes,
+    TODO,
     None,
 }
 
@@ -218,6 +202,8 @@ impl From<String> for HoldableResource {
             "Animals" => HoldableResource::Animals,
             "Science" => HoldableResource::Science,
             "Microbes" => HoldableResource::Microbes,
+            "Ref" => HoldableResource::TODO,
+            "Floaters" => HoldableResource::TODO,
             "No" => HoldableResource::None,
             _ => HoldableResource::None // FIXME decide on behaviour here
         }
@@ -308,23 +294,23 @@ impl From<CSVCard> for Card {
                 Tags::from_string(&csv_card.tag_energy, Tags::Energy),
                 Tags::from_string(&csv_card.tag_event, Tags::Event),
             ].concat(),
-            production: Production {
-                megacredit: NumberOrRef::from(csv_card.prod_megacredit),
-                steel: NumberOrRef::from(csv_card.prod_steel),
-                titanium: NumberOrRef::from(csv_card.prod_titanium),
-                plant: NumberOrRef::from(csv_card.prod_plant),
-                energy: NumberOrRef::from(csv_card.prod_energy),
-                heat: NumberOrRef::from(csv_card.prod_heat),
-            },
-            resources: Resources {
-                megacredit: NumberOrRef::from(csv_card.inv_megacredit),
-                steel: NumberOrRef::from(csv_card.inv_steel),
-                titanium: NumberOrRef::from(csv_card.inv_titanium),
-                plant: NumberOrRef::from(csv_card.inv_plant),
-                energy: NumberOrRef::from(csv_card.inv_energy),
-                heat: NumberOrRef::from(csv_card.inv_heat),
-                other: BoolOrRef::from(csv_card.other_resources_on_cards),
-            },
+            production: vec![
+                Resource::from_string(&csv_card.prod_megacredit, Resource::MegaCredits(0)).unwrap(),
+                Resource::from_string(&csv_card.prod_steel, Resource::Steel(0)).unwrap(),
+                Resource::from_string(&csv_card.prod_titanium, Resource::Titanium(0)).unwrap(),
+                Resource::from_string(&csv_card.prod_plant, Resource::Plants(0)).unwrap(),
+                Resource::from_string(&csv_card.prod_energy, Resource::Energy(0)).unwrap(),
+                Resource::from_string(&csv_card.prod_heat, Resource::Heat(0)).unwrap(),
+            ],
+            resources: vec![
+                Resource::from_string(&csv_card.inv_megacredit, Resource::MegaCredits(0)).unwrap(),
+                Resource::from_string(&csv_card.inv_steel, Resource::Steel(0)).unwrap(),
+                Resource::from_string(&csv_card.inv_titanium, Resource::Titanium(0)).unwrap(),
+                Resource::from_string(&csv_card.inv_plant, Resource::Plants(0)).unwrap(),
+                Resource::from_string(&csv_card.inv_energy, Resource::Energy(0)).unwrap(),
+                Resource::from_string(&csv_card.inv_heat, Resource::Heat(0)).unwrap(),
+            ],
+            resources_on_card: HoldableResource::from(csv_card.other_resources_on_cards),
             terraforming_effect: TerraformingEffect {
                 temperature: NumberOrRef::from(csv_card.temperature),
                 oxygen: NumberOrRef::from(csv_card.oxygen),

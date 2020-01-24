@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::fmt;
 
 pub use crate::card::Card;
 pub use crate::card_pile::CardPile;
@@ -27,16 +28,44 @@ pub struct Inventory {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Production {
     pub megacredits: i32,
-    pub steel: i32,
-    pub titanium: i32,
-    pub plants: i32,
-    pub energy: i32,
-    pub heat: i32
+    pub steel: u32,
+    pub titanium: u32,
+    pub plants: u32,
+    pub energy: u32,
+    pub heat: u32
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub enum Resource {
-    MegaCredits, Steel, Titanium, Plants, Energy, Heat
+    MegaCredits(i32), Steel(i32), Titanium(i32), Plants(i32), Energy(i32), Heat(i32), Special,
+}
+
+impl fmt::Display for Resource {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
+impl Resource {
+    pub fn from_string(number: &String, resource: Resource) -> Option<Resource> {
+        match number.parse::<i32>() {
+            Err(_e) => match number.as_ref() {
+                "Ref" => Some(Resource::Special),
+                "No" => None,
+                "Floaters" => None, // TODO this is an extension feature
+                _ => panic!("Cannot convert CSVCard resource to {} Resources::{}!", number, resource),
+            }
+            Ok(count) => match resource {
+                Resource::MegaCredits(_) => Some(Resource::MegaCredits(count)),
+                Resource::Steel(_) => Some(Resource::Steel(count)),
+                Resource::Titanium(_) => Some(Resource::Titanium(count)),
+                Resource::Plants(_) => Some(Resource::Plants(count)),
+                Resource::Energy(_) => Some(Resource::Energy(count)),
+                Resource::Heat(_) => Some(Resource::Heat(count)),
+                Resource::Special => None,
+            }
+        }
+    }
 }
 
 impl Player {

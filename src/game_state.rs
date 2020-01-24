@@ -1,9 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-pub use crate::player::*;
-pub use crate::card::*;
+pub use crate::player::{Player};
+pub use crate::card::{Card, Deck, CardType};
 pub use crate::card_pile::CardPile;
-pub use crate::commands::*;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GameState {
@@ -23,7 +22,7 @@ pub struct GameState {
     pub corporation_pile: CardPile,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub enum Phase {
     Init, Setup, Research, Action, Production,
 }
@@ -65,13 +64,13 @@ pub enum Resources {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct OwnedCard {
     pub card: Card,
-    pub owner: u32,
+    pub owner: usize,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Award {
     pub name: Awards,
-    pub owner: i32,
+    pub owner: Option<usize>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -86,7 +85,7 @@ pub enum Awards {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Milestone {
     pub name: Milestones,
-    pub owner: i32,
+    pub owner: Option<usize>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -105,10 +104,13 @@ impl GameState {
         )
     }
 
-    pub fn get_player(&mut self, id: usize) -> &mut Player {
-        &mut self.players[id]
+    pub fn get_player(&self, id: usize) -> &Player {
+        &self.players[id]
     }
 
+    pub fn get_player_mut(&mut self, id: usize) -> &mut Player {
+        &mut self.players[id]
+    }
 
     pub fn new(cards: &mut Vec<Card>, used_decks: &Vec<Deck>) -> GameState {
         let deck: Vec<Card> = cards.iter().filter(|card| used_decks.contains(&card.deck)).cloned().collect();
@@ -189,18 +191,18 @@ impl GameState {
                 SpecialTile {name: "Ganymede Colony".to_owned(), tile_type: TileType::Empty, resources: vec![], reserved: TileType::City}
             ],
             milestones: vec![
-                Milestone {name: Milestones::Terraformer, owner: -1},
-                Milestone {name: Milestones::Mayor, owner: -1},
-                Milestone {name: Milestones::Gardener, owner: -1},
-                Milestone {name: Milestones::Builder, owner: -1},
-                Milestone {name: Milestones::Planner, owner: -1},
+                Milestone {name: Milestones::Terraformer, owner: None},
+                Milestone {name: Milestones::Mayor, owner: None},
+                Milestone {name: Milestones::Gardener, owner: None},
+                Milestone {name: Milestones::Builder, owner: None},
+                Milestone {name: Milestones::Planner, owner: None},
             ],
             awards: vec![
-                Award {name: Awards::Landlord, owner: -1},
-                Award {name: Awards::Banker, owner: -1},
-                Award {name: Awards::Scientist, owner: -1},
-                Award {name: Awards::Thermalist, owner: -1},
-                Award {name: Awards::Miner, owner: -1},
+                Award {name: Awards::Landlord, owner: None},
+                Award {name: Awards::Banker, owner: None},
+                Award {name: Awards::Scientist, owner: None},
+                Award {name: Awards::Thermalist, owner: None},
+                Award {name: Awards::Miner, owner: None},
             ],
             cards_in_play: vec![],
             players: vec![],
