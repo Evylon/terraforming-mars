@@ -163,23 +163,32 @@ impl Command<GameState> for DiscardResearch {
 
 pub struct ModResources{pub player_id: usize, pub rescs: Vec<Resource>}
 
+fn mod_inventory(inv: &mut u32, count: i32, player_id: usize, res_type: String) -> undo::Result {
+    if count < 0 && count.abs() as u32 > *inv {
+        Err(Box::new(CannotExecute{reason: format!("Insufficient {}! player {} needs {} but has only {}", res_type, player_id, -count, *inv)}))
+    } else {
+        *inv = (*inv as i32 + count) as u32;
+        Ok(())
+    }
+}
+
 impl Command<GameState> for ModResources {
     fn apply(&mut self, game_state: &mut GameState) -> undo::Result {
         let player = game_state.get_player_mut(self.player_id);
         for res in self.rescs.iter() {
-            let (inv, count, res_type) = match *res {
-                Resource::MegaCredits(count) => (&mut player.inventory.megacredits, count, "Megacredits"),
-                Resource::Steel(count) => (&mut player.inventory.steel, count, "Steel"),
-                Resource::Titanium(count) => (&mut player.inventory.titanium, count, "Titanium"),
-                Resource::Plants(count) => (&mut player.inventory.plants, count, "Plants"),
-                Resource::Energy(count) => (&mut player.inventory.energy, count, "Energy"),
-                Resource::Heat(count) => (&mut player.inventory.heat, count, "Heat"),
+            let result = match *res {
+                Resource::MegaCredits(count) => mod_inventory(&mut player.inventory.megacredits, count, player.id, "Megacredits".to_owned()),
+                Resource::Steel(count) => mod_inventory(&mut player.inventory.steel, count, player.id, "Steel".to_owned()),
+                Resource::Titanium(count) => mod_inventory(&mut player.inventory.titanium, count, player.id, "Titanium".to_owned()),
+                Resource::Plants(count) => mod_inventory(&mut player.inventory.plants, count, player.id, "Plants".to_owned()),
+                Resource::Energy(count) => mod_inventory(&mut player.inventory.energy, count, player.id, "Energy".to_owned()),
+                Resource::Heat(count) => mod_inventory(&mut player.inventory.heat, count, player.id, "Heat".to_owned()),
                 Resource::Special => continue, // TODO
             };
-            if count < 0 && count.abs() as u32 > *inv {
-                return Err(Box::new(CannotExecute{reason: format!("Insufficient {}! player {} needs {} but has only {}", res_type, player.id, -count, *inv)}));
-            }
-            *inv = (*inv as i32 + count) as u32;
+            match result {
+                Err(err) => return Err(err),
+                Ok(()) => ()
+            };
         }
         Ok(())
     }
@@ -188,16 +197,75 @@ impl Command<GameState> for ModResources {
         let player = game_state.get_player_mut(self.player_id);
         for res in self.rescs.iter() {
             // we can always undo
-            let (inv, count) = match *res {
-                Resource::MegaCredits(count) => (&mut player.inventory.megacredits, count),
-                Resource::Steel(count) => (&mut player.inventory.steel, count),
-                Resource::Titanium(count) => (&mut player.inventory.titanium, count),
-                Resource::Plants(count) => (&mut player.inventory.plants, count),
-                Resource::Energy(count) => (&mut player.inventory.energy, count),
-                Resource::Heat(count) => (&mut player.inventory.heat, count),
+            match *res {
+                Resource::MegaCredits(count) => player.inventory.megacredits = (player.inventory.megacredits as i32 - count) as u32,
+                Resource::Steel(count) => player.inventory.steel = (player.inventory.steel as i32 - count) as u32,
+                Resource::Titanium(count) => player.inventory.titanium = (player.inventory.titanium as i32 - count) as u32,
+                Resource::Plants(count) => player.inventory.plants = (player.inventory.plants as i32 - count) as u32,
+                Resource::Energy(count) => player.inventory.energy = (player.inventory.energy as i32 - count) as u32,
+                Resource::Heat(count) => player.inventory.heat = (player.inventory.heat as i32 - count) as u32,
                 Resource::Special => continue, // TODO 
             };
-            *inv = (*inv as i32 - count) as u32;
+        }
+        Ok(())
+    }
+}
+
+pub struct ModProduction{pub player_id: usize, pub rescs: Vec<Resource>}
+
+fn mod_production(prod: &mut u32, count: i32, player_id: usize, res_type: String) -> undo::Result {
+    if count < 0 && count.abs() as u32 > *prod {
+        Err(Box::new(CannotExecute{reason: format!("Insufficient {} production! player {} needs {} but has only {}", res_type, player_id, -count, *prod)}))
+    } else {
+        *prod = (*prod as i32 + count) as u32;
+        Ok(())
+    }
+}
+
+impl Command<GameState> for ModProduction {
+    fn apply(&mut self, game_state: &mut GameState) -> undo::Result {
+        let player = game_state.get_player_mut(self.player_id);
+        for res in self.rescs.iter() {
+            // if res == Resource
+            let result = match *res {
+                // special case MegeCredits can be down to -5 production
+                Resource::MegaCredits(count) => {
+                    if count + player.production.megacredits < -5 {
+                        return Err(Box::new(CannotExecute{reason: format!("Insufficient Megacredits production! player {} needs {}", player.id, -5-count)}))
+                    } else {
+                        player.production.megacredits += count;
+                        Ok(())
+                    }
+                },
+                Resource::Steel(count) => mod_production(&mut player.production.steel, count, player.id, "Steel".to_owned()),
+                Resource::Titanium(count) => mod_production(&mut player.production.titanium, count, player.id, "Titanium".to_owned()),
+                Resource::Plants(count) => mod_production(&mut player.production.plants, count, player.id, "Plants".to_owned()),
+                Resource::Energy(count) => mod_production(&mut player.production.energy, count, player.id, "Energy".to_owned()),
+                Resource::Heat(count) => mod_production(&mut player.production.heat, count, player.id, "Heat".to_owned()),
+                Resource::Special => continue, // TODO
+            };
+            match result {
+                Err(err) => return Err(err),
+                Ok(()) => (),
+            };
+        }
+        Ok(())
+    }
+
+    fn undo(&mut self, game_state: &mut GameState) -> undo::Result {
+        let player = game_state.get_player_mut(self.player_id);
+        for res in self.rescs.iter() {
+            // we can always undo
+            match *res {
+                // special case MegaCredits production can also be negative
+                Resource::MegaCredits(count) => player.production.megacredits -= count,
+                Resource::Steel(count) => player.production.steel = (player.production.steel as i32 - count) as u32,
+                Resource::Titanium(count) => player.production.titanium = (player.production.titanium as i32 - count) as u32,
+                Resource::Plants(count) => player.production.plants = (player.production.plants as i32 - count) as u32,
+                Resource::Energy(count) => player.production.energy = (player.production.energy as i32 - count) as u32,
+                Resource::Heat(count) => player.production.heat = (player.production.heat as i32 - count) as u32,
+                Resource::Special => continue, // TODO 
+            };
         }
         Ok(())
     }
@@ -258,10 +326,11 @@ impl StateMachine {
     fn play_card(&mut self, player_id: usize, card_id: String, command: impl Command<GameState> + 'static) -> undo::Result {
         let card = self.lookup_card(card_id);
         let rescs_cmd = ModResources{player_id: player_id, rescs: card.resources.to_owned()};
+        let prod_cmd = ModProduction{player_id: player_id, rescs: card.production.to_owned()};
         let mut queue = self.record.queue();
         queue.apply(command);
         queue.apply(rescs_cmd);
-        // TODO production
+        queue.apply(prod_cmd);
         // TODO one-time Actions/effects
         queue.commit()
     }
