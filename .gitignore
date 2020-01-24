@@ -7,3 +7,6 @@
 
 /target
 **/*.rs.bk
+
+#manually added
+.vscode
