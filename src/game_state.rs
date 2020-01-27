@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use rand::prelude::*;
 
 pub use crate::player::{Player};
 pub use crate::card::{Card, Deck, CardType};
@@ -8,7 +9,8 @@ pub use crate::card_pile::CardPile;
 pub struct GameState {
     pub phase: Phase,
     pub generation: u32,
-    pub active_player: u32,
+    pub start_player: usize,
+    pub active_player: usize,
     pub oxygen: u32,
     pub temperature: i32,
     pub oceans_placed: u32,
@@ -112,14 +114,16 @@ impl GameState {
         &mut self.players[id]
     }
 
-    pub fn new(cards: &mut Vec<Card>, used_decks: &Vec<Deck>) -> GameState {
+    pub fn new(cards: &mut Vec<Card>, used_decks: &Vec<Deck>, player_count: usize) -> GameState {
         let deck: Vec<Card> = cards.iter().filter(|card| used_decks.contains(&card.deck)).cloned().collect();
         let mut projects: Vec<Card> = deck.iter().filter(|card| card.card_type != CardType::Corporation).cloned().collect();
         let mut corporations: Vec<Card> = deck.iter().filter(|card| card.card_type == CardType::Corporation).cloned().collect();
-        GameState {
+        let start_player_id = rand::thread_rng().next_u32() as usize % player_count;
+        let mut state = GameState {
             phase: Phase::Init,
             generation: 0,
-            active_player: 0,
+            start_player: start_player_id,
+            active_player: start_player_id,
             oxygen: 0,
             temperature: -30,
             oceans_placed: 0,
@@ -208,6 +212,10 @@ impl GameState {
             players: vec![],
             project_pile: CardPile::new(projects.as_mut()),
             corporation_pile: CardPile::new(corporations.as_mut()),
+        };
+        for _ in 0..player_count {
+            state.add_player();
         }
+        return state;
     }
 }

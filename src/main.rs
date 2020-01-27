@@ -25,10 +25,7 @@ fn main() {
     }
     // init game
     let used_decks = vec![card::Deck::Basic];
-    let mut my_state = game_state::GameState::new(all_cards.as_mut(), used_decks.as_ref());
-    for _ in 0..2 {
-        my_state.add_player();
-    }
+    let my_state = game_state::GameState::new(all_cards.as_mut(), used_decks.as_ref(), 2);
     let mut state_machine = commands::StateMachine::new(my_state, all_cards);
     state_machine.advance_phase().unwrap();
 

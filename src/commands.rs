@@ -1,7 +1,7 @@
 use undo::{Command, Record};
 use std::{error::Error, fmt};
 
-use crate::player::Resource;
+use crate::player::{Resource, ActionState};
 use crate::game_state::{GameState, OwnedCard, Phase};
 use crate::card::{Card, CardType};
 
@@ -403,6 +403,9 @@ impl StateMachine {
             return Err(Box::new(CannotExecute{reason: "Cannot advance to Action phase, a player still has research enqueued!".to_owned()}));
         }
         self.record.as_mut_target().phase = Phase::Action;
+        let start_player_id = self.get_state().start_player;
+        self.record.as_mut_target().players[start_player_id].action_state = ActionState::Acting(2);
+        self.record.as_mut_target().active_player = start_player_id;
         Ok(())
     }
 
@@ -441,6 +444,9 @@ impl StateMachine {
                 // TODO
                 // reset marker on action cards
                 self.record.as_mut_target().generation += 1;
+                // wrapping increment start_player
+                let old_start_player = self.get_state().start_player;
+                self.record.as_mut_target().start_player = (old_start_player + 1) % self.get_state().players.len();
                 // transition to research phase
                 self.research_phase()
             }

@@ -8,11 +8,17 @@ pub use crate::card_pile::CardPile;
 pub struct Player {
     pub id: usize,
     pub tf_rating: i32,
+    pub action_state: ActionState,
     pub corporation: Option<Card>,
     pub inventory: Inventory,
     pub production: Production,
     pub hand: Vec<Card>,
     pub research_queue: Vec<Card>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum ActionState {
+    Acting(u8), Waiting, Passed,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -81,6 +87,7 @@ impl Player {
         Player {
             id: id,
             tf_rating: 20,
+            action_state: ActionState::Waiting,
             corporation: None,
             inventory: Inventory {
                 megacredits: 0,
