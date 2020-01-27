@@ -30,15 +30,23 @@ fn main() {
         my_state.add_player();
     }
     let mut state_machine = commands::StateMachine::new(my_state, all_cards);
-    state_machine.advance_phase();
-    println!("{:?}", state_machine.get_state().players[0].production);
+    state_machine.advance_phase().unwrap();
 
-    let card = state_machine.get_state().get_player(0).hand.first().unwrap();
-    let cmd = commands::ChooseCorporation{player_id: 0, card_id: card.id.to_owned()};
-    state_machine.apply(commands::CmdWrapper::ChooseCorporation(cmd)).unwrap();
-    let mut card_ids: Vec<String> = state_machine.get_state().players[0].research_queue.iter().map(|c| c.id.to_owned()).collect();
-    let research_ids = card_ids.split_off(card_ids.len() / 2);
-    state_machine.apply(commands::CmdWrapper::ResearchCards(commands::ResearchCards{player_id: 0, card_ids: research_ids})).unwrap();
-    println!("{:?}", state_machine.get_state().players[0].corporation.as_ref().unwrap().production);
-    println!("{:?}", state_machine.get_state().players[0].production);
+    for player_id in 0..2 {
+        let card = state_machine.get_state().get_player(player_id).hand.first().unwrap();
+        let cmd = commands::ChooseCorporation{player_id: player_id, card_id: card.id.to_owned()};
+        state_machine.apply(commands::CmdWrapper::ChooseCorporation(cmd)).unwrap();
+        let mut card_ids: Vec<String> = state_machine.get_state().players[player_id].research_queue.iter().map(|c| c.id.to_owned()).collect();
+        let research_ids = card_ids.split_off(card_ids.len() / 2);
+        state_machine.apply(commands::CmdWrapper::ResearchCards(commands::ResearchCards{player_id: player_id, card_ids: research_ids})).unwrap();
+        println!("{:?}", state_machine.get_state().players[player_id].corporation.as_ref().unwrap().production);
+        println!("{:?}", state_machine.get_state().players[player_id].production);
+    }
+    // advance to action phase
+    state_machine.advance_phase().unwrap();
+    // test advancing to production phase
+    state_machine.advance_phase().unwrap();
+    // after production state should automatically transition into research phase
+    assert_eq!(state_machine.get_state().phase, game_state::Phase::Research);
+    println!("{:?}", state_machine.get_state().players[0]);
 }

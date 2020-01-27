@@ -335,14 +335,14 @@ impl StateMachine {
         queue.commit()
     }
 
-    pub fn advance_phase(&mut self) -> () {
+    pub fn advance_phase(&mut self) -> undo::Result {
         // TODO implement action phase
         match self.get_state().phase {
-            Phase::Init => self.setup_phase().unwrap(),
-            Phase::Setup => self.transition_setup_to_action().unwrap(),
-            Phase::Research => self.research_phase(),
-            Phase::Action => (), //TODO
-            Phase::Production => self.production_phase(),
+            Phase::Init => self.setup_phase(),
+            Phase::Setup => self.transition_to_action(),
+            Phase::Research => self.transition_to_action(),
+            Phase::Action => self.production_phase(),
+            Phase::Production => self.research_phase(),
         }
     }
 
@@ -362,31 +362,63 @@ impl StateMachine {
         Ok(())
     }
 
-    fn transition_setup_to_action(&mut self) -> Result<(), ()> {
+    fn transition_to_action(&mut self) -> undo::Result {
         // all players have to choose a corporation
         if self.get_state().players.iter().any(|p| p.corporation.is_none()) {
-            return Err(());
+            return Err(Box::new(CannotExecute{reason: "Cannot advance to Action phase, a player has not selected a corporation!".to_owned()}));
         }
         // players may hold only projects, no corporations
         if self.get_state().players.iter().flat_map(|p| &p.hand).any(|card| card.card_type == CardType::Corporation) {
-            return Err(());
+            return Err(Box::new(CannotExecute{reason: "Cannot advance to Action phase, a player has a corporation card in hand!".to_owned()}));
         }
         // all players have to empty their research queue
         if !self.get_state().players.iter().all(|p| p.research_queue.is_empty()) {
-            return Err(());
+            return Err(Box::new(CannotExecute{reason: "Cannot advance to Action phase, a player still has research enqueued!".to_owned()}));
         }
+        self.record.as_mut_target().phase = Phase::Action;
         Ok(())
     }
 
-    fn research_phase(&mut self) -> () {
+    fn research_phase(&mut self) -> undo::Result {
         let player_ids = self.get_state().players.iter().map(|p| p.id).collect::<Vec<usize>>();
+        let mut queue = self.record.queue();
         for id in player_ids {
-            self.record.apply(DrawCards{player_id: id, count: 10, card_type: CardType::Project}).unwrap();
+            queue.apply(DrawCards{player_id: id, count: 4, card_type: CardType::Project});
         }
+        match queue.commit() {
+            Ok(()) => self.record.as_mut_target().phase = Phase::Research,
+            Err(err) => return Err(err),
+        };
+        Ok(())
     }
 
-    fn production_phase(&mut self) -> () {
-        // TODO
+    fn production_phase(&mut self) -> undo::Result {
+        let mut cmd_queue = vec![];
+        for player in self.get_state().players.iter() {
+            let rescs = vec![
+                Resource::MegaCredits(player.production.megacredits + player.tf_rating),
+                Resource::Steel(player.production.steel as i32),
+                Resource::Titanium(player.production.titanium as i32),
+                Resource::Plants(player.production.plants as i32),
+                Resource::Energy(player.production.energy as i32 - player.inventory.energy as i32),
+                Resource::Heat(player.production.heat as i32 + player.inventory.energy as i32)
+            ];
+            cmd_queue.push(ModResources{player_id: player.id, rescs: rescs});
+        }
+        let mut queue = self.record.queue();
+        for cmd in cmd_queue {
+            queue.apply(cmd)
+        }
+        match queue.commit() {
+            Ok(()) => {
+                // TODO
+                // reset marker on action cards
+                self.record.as_mut_target().generation += 1;
+                // transition to research phase
+                self.research_phase()
+            }
+            Err(err) => Err(err),
+        }
     }
 }
 
