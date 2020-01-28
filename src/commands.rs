@@ -1,4 +1,4 @@
-use undo::{Command, Record};
+use undo::{Command, Record, Chain};
 use std::{error::Error, fmt};
 
 use crate::player::{Resource, ActionState};
@@ -344,22 +344,17 @@ impl StateMachine {
         let research_queue = &self.get_state().get_player(command.player_id).research_queue;
         let discard_ids = research_queue.iter().map(|c| c.id.to_owned()).filter(|id| !command.card_ids.contains(&id)).collect();
         let discard_cmd = DiscardResearch{player_id: command.player_id, card_ids: discard_ids};
-        let mut queue = self.record.queue();
-        queue.apply(command);
-        queue.apply(discard_cmd);
-        queue.commit()
+        let chain = Chain::new().join(command).join(discard_cmd);
+        self.record.apply(chain)
     }
 
     fn play_card(&mut self, player_id: usize, card_id: String, command: impl Command<GameState> + 'static) -> undo::Result {
         let card = self.lookup_card(card_id);
         let rescs_cmd = ModResources{player_id: player_id, rescs: card.resources.to_owned()};
         let prod_cmd = ModProduction{player_id: player_id, rescs: card.production.to_owned()};
-        let mut queue = self.record.queue();
-        queue.apply(command);
-        queue.apply(rescs_cmd);
-        queue.apply(prod_cmd);
+        let chain = Chain::new().join(command).join(rescs_cmd).join(prod_cmd);
         // TODO one-time Actions/effects
-        queue.commit()
+        self.record.apply(chain)
     }
 
     pub fn advance_phase(&mut self) -> undo::Result {
@@ -375,14 +370,14 @@ impl StateMachine {
 
     fn setup_phase(&mut self) -> undo::Result {
         let player_ids = self.get_state().players.iter().map(|p| p.id).collect::<Vec<usize>>();
-        let mut queue = self.record.queue();
+        let mut chain = Chain::new();
         for id in player_ids {
             // assign corporations
-            queue.apply(DrawCards{player_id: id, count: 2, card_type: CardType::Corporation});
+            chain = chain.join(DrawCards{player_id: id, count: 2, card_type: CardType::Corporation});
             // assign start cards
-            queue.apply(DrawCards{player_id: id, count: 10, card_type: CardType::Project});
+            chain = chain.join(DrawCards{player_id: id, count: 10, card_type: CardType::Project});
         }
-        match queue.commit() {
+        match self.record.apply(chain) {
             Ok(()) => self.record.as_mut_target().phase = Phase::Setup,
             Err(err) => return Err(err),
         };
@@ -411,11 +406,11 @@ impl StateMachine {
 
     fn research_phase(&mut self) -> undo::Result {
         let player_ids = self.get_state().players.iter().map(|p| p.id).collect::<Vec<usize>>();
-        let mut queue = self.record.queue();
+        let mut chain = Chain::new();
         for id in player_ids {
-            queue.apply(DrawCards{player_id: id, count: 4, card_type: CardType::Project});
+            chain = chain.join(DrawCards{player_id: id, count: 4, card_type: CardType::Project});
         }
-        match queue.commit() {
+        match self.record.apply(chain) {
             Ok(()) => self.record.as_mut_target().phase = Phase::Research,
             Err(err) => return Err(err),
         };
@@ -423,7 +418,7 @@ impl StateMachine {
     }
 
     fn production_phase(&mut self) -> undo::Result {
-        let mut cmd_queue = vec![];
+        let mut chain = Chain::new();
         for player in self.get_state().players.iter() {
             let rescs = vec![
                 Resource::MegaCredits(player.production.megacredits + player.tf_rating),
@@ -433,13 +428,9 @@ impl StateMachine {
                 Resource::Energy(player.production.energy as i32 - player.inventory.energy as i32),
                 Resource::Heat(player.production.heat as i32 + player.inventory.energy as i32)
             ];
-            cmd_queue.push(ModResources{player_id: player.id, rescs: rescs});
+            chain = chain.join(ModResources{player_id: player.id, rescs: rescs});
         }
-        let mut queue = self.record.queue();
-        for cmd in cmd_queue {
-            queue.apply(cmd)
-        }
-        match queue.commit() {
+        match self.record.apply(chain) {
             Ok(()) => {
                 // TODO
                 // reset marker on action cards
