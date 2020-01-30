@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 extern crate rand;
 
-pub use crate::card::Card;
+use crate::card::Card;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CardPile {

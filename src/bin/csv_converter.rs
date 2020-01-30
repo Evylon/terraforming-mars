@@ -1,4 +1,4 @@
-use terraforming_mars::card::convert_csv;
+use terraforming_mars::convert_csv;
 
 const CARD_FOLDER: &str = "cards/";
 const CARD_LIST: &str = "card_list.csv";

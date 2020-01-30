@@ -1,8 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-pub use crate::card::Card;
-pub use crate::card_pile::CardPile;
+use crate::card::Card;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Player {
