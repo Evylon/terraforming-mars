@@ -67,7 +67,7 @@ pub struct GlobalRequirements {
     pub max_ocean: u32,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Tags {
     Science,
     Building,

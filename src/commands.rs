@@ -3,7 +3,7 @@ use std::{error::Error, fmt};
 
 use crate::player::{Resource, ActionState};
 use crate::game_state::{GameState, OwnedCard, Phase};
-use crate::card::{Card, CardType};
+use crate::card::{Card, CardType, Tags};
 
 const CHAIN_RESEARCH_ID: u32 = 1;
 const CHAIN_PLAY_CARD_ID: u32 = 2;
@@ -48,6 +48,41 @@ impl Command<GameState> for DrawCards {
 
 pub struct PlayCard{pub owner_id: usize, pub card_id: String, pub target_id: Option<usize>}
 
+fn check_requirements(card: &Card, player_id: usize, game_state: &GameState) -> undo::Result {
+    if game_state.temperature < card.requirements.global.min_temperature ||
+        game_state.temperature > card.requirements.global.max_temperature {
+            return Err(Box::new(CannotExecute{
+                reason: format!("Requirements not met! Temperature {} <= {} <= {} not satisfied!",
+                        card.requirements.global.min_temperature, game_state.temperature, card.requirements.global.max_temperature)
+            }))
+    }
+    if game_state.oxygen < card.requirements.global.min_oxygen ||
+        game_state.oxygen > card.requirements.global.max_oxygen {
+            return Err(Box::new(CannotExecute{
+                reason: format!("Requirements not met! Oxygen {} <= {} <= {} not satisfied!",
+                        card.requirements.global.min_oxygen, game_state.oxygen, card.requirements.global.max_oxygen)
+            }))
+    }
+    if game_state.oceans_placed < card.requirements.global.min_ocean ||
+        game_state.oceans_placed > card.requirements.global.min_ocean {
+            return Err(Box::new(CannotExecute{
+                reason: format!("Requirements not met! Oceans {} <= {} <= {} not satisfied!",
+                        card.requirements.global.min_ocean, game_state.oceans_placed, card.requirements.global.max_ocean)
+            }))
+    }
+    let mut owned_tags: Vec<&Tags> = game_state.cards_in_play.iter().filter(|c| c.owner == player_id).map(|c| &c.card.tags).flatten().collect();
+    // check requirements by removing ("counting") tags from owned tags if they are required by the card
+    for tag in card.requirements.local.iter() {
+        match owned_tags.iter().position(|t| **t == *tag) {
+            Some(idx) => {
+                owned_tags.remove(idx);
+            },
+            None => return Err(Box::new(CannotExecute{reason: format!("Requirements not met! Player {} hat not enough {} tags!", player_id, tag)})),
+        }
+    }
+    Ok(())
+}
+
 impl Command<GameState> for PlayCard {
     fn apply(&mut self, game_state: &mut GameState) -> undo::Result {
         let player = game_state.get_player_mut(self.owner_id);
@@ -55,14 +90,16 @@ impl Command<GameState> for PlayCard {
             Some(idx) => player.hand.remove(idx),
             None => return Err(Box::new(CannotExecute{reason: format!("Card {} not found in player {}'s hand!", self.card_id, self.owner_id)})),
         };
-        match player.inventory.megacredits.checked_sub(card.cost) {
-            Some(result) => player.inventory.megacredits = result,
-            None => return Err(Box::new(CannotExecute{
+        // TODO allow to substitute megecredits with steel and titanium
+        if player.inventory.megacredits < card.cost {
+            return Err(Box::new(CannotExecute{
                 reason: format!("Insufficient funds! Player {} need {} Megacredits to play card {}!", self.owner_id, card.cost, card.id)
-            })),
-        };
-        // TODO
-        // check requirements
+            }))
+        } else {
+            player.inventory.megacredits -= card.cost;
+        }
+        check_requirements(&card, self.owner_id, game_state)?;
+        // TODO check if actions on card can be executed (i.e. remove resources from other player)
         game_state.cards_in_play.push(OwnedCard{card: card, owner: self.owner_id});
         Ok(())
     }
