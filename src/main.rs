@@ -7,6 +7,7 @@ pub mod card;
 pub mod player;
 pub mod card_pile;
 pub mod commands;
+pub mod state_machine;
 
 fn main() {
     // load cards
@@ -26,7 +27,7 @@ fn main() {
     // init game
     let used_decks = vec![card::Deck::Basic];
     let my_state = game_state::GameState::new(all_cards.as_mut(), used_decks.as_ref(), 2);
-    let mut state_machine = commands::StateMachine::new(my_state, all_cards);
+    let mut state_machine = state_machine::StateMachine::new(my_state, all_cards);
     state_machine.advance_phase().unwrap();
 
     for player_id in 0..2 {

@@ -3,3 +3,4 @@ pub mod game_state;
 pub mod card_pile;
 pub mod player;
 pub mod commands;
+pub mod state_machine;
