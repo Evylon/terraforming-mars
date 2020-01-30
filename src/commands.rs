@@ -5,9 +5,6 @@ use crate::player::{Resource, ActionState};
 use crate::game_state::{GameState, OwnedCard, Phase};
 use crate::card::{Card, CardType, Tags};
 
-const CHAIN_RESEARCH_ID: u32 = 1;
-const CHAIN_PLAY_CARD_ID: u32 = 2;
-
 pub struct DrawCards{pub player_id: usize, pub count: usize, pub card_type: CardType}
 
 impl Command<GameState> for DrawCards {
@@ -114,10 +111,6 @@ impl Command<GameState> for PlayCard {
         player.hand.push(owned_card.card);
         Ok(())
     }
-
-    fn merge(&self) -> undo::Merge {
-        undo::Merge::If(CHAIN_PLAY_CARD_ID)
-    }
 }
 
 pub struct ChooseCorporation{pub player_id: usize, pub card_id: String}
@@ -144,10 +137,6 @@ impl Command<GameState> for ChooseCorporation {
         coorps.push(player.corporation.take().unwrap());
         player.hand.append(coorps.as_mut());
         Ok(())
-    }
-
-    fn merge(&self) -> undo::Merge {
-        undo::Merge::If(CHAIN_PLAY_CARD_ID)
     }
 }
 
@@ -182,10 +171,6 @@ impl Command<GameState> for ResearchCards {
         player.research_queue.append(cards.as_mut());
         Ok(())
     }
-
-    fn merge(&self) -> undo::Merge {
-        undo::Merge::If(CHAIN_RESEARCH_ID)
-    }
 }
 
 struct DiscardResearch{pub player_id: usize, pub card_ids: Vec<String>}
@@ -210,10 +195,6 @@ impl Command<GameState> for DiscardResearch {
         let mut cards = game_state.project_pile.discard_pile.drain(first_idx..).collect::<Vec<Card>>();
         game_state.get_player_mut(self.player_id).research_queue.append(cards.as_mut());
         Ok(())
-    }
-
-    fn merge(&self) -> undo::Merge {
-        undo::Merge::If(CHAIN_RESEARCH_ID)
     }
 }
 
@@ -264,10 +245,6 @@ impl Command<GameState> for ModResources {
             };
         }
         Ok(())
-    }
-
-    fn merge(&self) -> undo::Merge {
-        undo::Merge::If(CHAIN_PLAY_CARD_ID)
     }
 }
 
@@ -328,10 +305,6 @@ impl Command<GameState> for ModProduction {
             };
         }
         Ok(())
-    }
-
-    fn merge(&self) -> undo::Merge {
-        undo::Merge::If(CHAIN_PLAY_CARD_ID)
     }
 }
 
