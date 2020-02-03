@@ -12,7 +12,7 @@ mod card_pile;
 use crate::state_machine::StateMachine;
 use crate::game_state::{GameState, Phase};
 use crate::card::Deck;
-use crate::commands::{ChooseCorporation, ResearchCards, CmdWrapper};
+use crate::commands::{ChooseCorporation, ResearchCards, PlayCard, CmdWrapper};
 
 fn main() {
     // load cards
@@ -47,6 +47,12 @@ fn main() {
     }
     // advance to action phase
     state_machine.advance_phase().unwrap();
+    let active_p_id = state_machine.get_state().active_player;
+    let card_id = state_machine.get_state().players[active_p_id].hand[0].id.to_owned();
+    match state_machine.apply(CmdWrapper::PlayCard(PlayCard{owner_id: active_p_id, card_id: card_id, target_id: None})) {
+        Ok(()) => (),
+        Err(err) => println!("\nERROR: {}\n", err),
+    };
     // test advancing to production phase
     state_machine.advance_phase().unwrap();
     // after production state should automatically transition into research phase
