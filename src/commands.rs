@@ -81,7 +81,15 @@ fn check_requirements(card: &Card, player_id: usize, game_state: &GameState) -> 
 
 impl Command<GameState> for PlayCard {
     fn apply(&mut self, game_state: &mut GameState) -> undo::Result {
+        // check if player is active player and phase must be Action
+        if game_state.phase != Phase::Action {
+            return CannotExecute::new(format!("Cannot PlayCard in Phase {:?}", game_state.phase));
+        }
+        if self.owner_id != game_state.active_player {
+            return CannotExecute::new(format!("Player {} cannot PlayCard. Active player is {}", self.owner_id, game_state.active_player));
+        }
         let player = game_state.get_player_mut(self.owner_id);
+        // check if player actually owns the card
         let card = match player.hand.iter().position(|c| c.id == self.card_id) {
             Some(idx) => player.hand.remove(idx),
             None => return CannotExecute::new(format!("Card {} not found in player {}'s hand!", self.card_id, self.owner_id)),
