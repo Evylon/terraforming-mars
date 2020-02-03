@@ -308,8 +308,6 @@ impl Command<GameState> for ModProduction {
 }
 
 pub enum CmdWrapper {
-    ModResources(ModResources),
-    DrawCards(DrawCards),
     PlayCard(PlayCard),
     ResearchCards(ResearchCards),
     ChooseCorporation(ChooseCorporation),

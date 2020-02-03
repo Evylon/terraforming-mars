@@ -32,8 +32,6 @@ impl StateMachine {
 
     pub fn apply(&mut self, command: CmdWrapper) -> undo::Result {
         match command {
-            CmdWrapper::ModResources(cmd) => self.record.apply(cmd),
-            CmdWrapper::DrawCards(cmd) => self.record.apply(cmd),
             CmdWrapper::PlayCard(cmd) => self.play_card(cmd.owner_id, cmd.card_id.to_owned(), cmd),
             CmdWrapper::ResearchCards(cmd) => self.research_card(cmd),
             CmdWrapper::ChooseCorporation(cmd) => self.play_card(cmd.player_id, cmd.card_id.to_owned(), cmd),
