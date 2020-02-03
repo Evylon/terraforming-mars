@@ -1,8 +1,8 @@
 use undo::{Command, Record, Chain};
 
-use crate::player::{Resource, ActionState};
+use crate::player::ActionState;
 use crate::game_state::{GameState, Phase};
-use crate::card::{Card, CardType};
+use crate::card::{Card, CardType, Resource};
 use crate::commands::*;
 
 

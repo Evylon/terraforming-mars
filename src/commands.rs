@@ -1,9 +1,8 @@
 use undo::Command;
 use std::{error::Error, fmt};
 
-use crate::player::Resource;
 use crate::game_state::{GameState, OwnedCard, Phase};
-use crate::card::{Card, CardType, Tags};
+use crate::card::{Card, CardType, Tags, Resource};
 
 pub struct DrawCards{pub player_id: usize, pub count: usize, pub card_type: CardType}
 
