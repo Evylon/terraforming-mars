@@ -85,15 +85,15 @@ impl StateMachine {
     fn transition_to_action(&mut self) -> undo::Result {
         // all players have to choose a corporation
         if self.get_state().players.iter().any(|p| p.corporation.is_none()) {
-            return Err(Box::new(CannotExecute{reason: "Cannot advance to Action phase, a player has not selected a corporation!".to_owned()}));
+            return CannotExecute::new("Cannot advance to Action phase, a player has not selected a corporation!".to_owned());
         }
         // players may hold only projects, no corporations
         if self.get_state().players.iter().flat_map(|p| &p.hand).any(|card| card.card_type == CardType::Corporation) {
-            return Err(Box::new(CannotExecute{reason: "Cannot advance to Action phase, a player has a corporation card in hand!".to_owned()}));
+            return CannotExecute::new("Cannot advance to Action phase, a player has a corporation card in hand!".to_owned());
         }
         // all players have to empty their research queue
         if !self.get_state().players.iter().all(|p| p.research_queue.is_empty()) {
-            return Err(Box::new(CannotExecute{reason: "Cannot advance to Action phase, a player still has research enqueued!".to_owned()}));
+            return CannotExecute::new("Cannot advance to Action phase, a player still has research enqueued!".to_owned());
         }
         self.record.as_mut_target().phase = Phase::Action;
         let start_player_id = self.get_state().start_player;
