@@ -81,6 +81,7 @@ fn main() {
             let cmd_string = format!("{:?}", cmd);
             match state_machine.apply(cmd) {
                 Ok(()) => println!("[LOG] Successfully applied {:?}", cmd_string),
+                // TODO broadcast state change to all clients
                 Err(err) => println!("[LOG] Encountered Error \"{}\" while applying {:?}", err, cmd_string),
             }
             deque_cvar.notify_one();

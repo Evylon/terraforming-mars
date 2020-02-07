@@ -10,7 +10,7 @@ use crate::commands::CmdWrapper;
 pub struct Server {
     tcp_listener: TcpListener,
     pub cmd_deque: Arc<(Mutex<VecDeque<CmdWrapper>>, Condvar)>,
-    
+    // TODO add pub list of all player sockets
 }
 
 impl Server {
@@ -30,6 +30,8 @@ impl Server {
                 loop {
                     // receive new message
                     let msg: Message;
+                    // TODO add socket to player list
+                    // TODO need option for state_machine to interrupt for broadcast to all players
                     match websocket.read_message() {
                         Ok(val) => msg = val,
                         Err(err) => {
@@ -63,6 +65,7 @@ impl Server {
                             let mut cmd_deque = deque_lock.lock().unwrap();
                             cmd_deque.push_back(unpacked_cmd);
                             deque_cvar.notify_one();
+                            // TODO forward success/failure of cmd to client
                         }
                         Message::Binary(_) => (), // ignore Binary messages
                         Message::Ping(_) => (), // ignore Ping messages

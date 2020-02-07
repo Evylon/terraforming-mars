@@ -36,6 +36,8 @@ impl StateMachine {
             CmdWrapper::ResearchCards(cmd) => self.research_card(cmd),
             CmdWrapper::ChooseCorporation(cmd) => self.play_card(cmd.player_id, cmd.card_id.to_owned(), cmd),
         }
+        // TODO check if game is over
+        // TODO check for advance_phase
     }
 
     fn research_card(&mut self, command: ResearchCards) -> undo::Result {
