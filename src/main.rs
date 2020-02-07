@@ -63,17 +63,7 @@ fn main() {
     assert_eq!(state_machine.get_state().phase, Phase::Research);
     // println!("{:?}", state_machine.get_state().players[0]);
     
-    // test serde with commands
-    let test_cmd = CmdWrapper::PlayCard(PlayCard{owner_id: 0, card_id: "42".to_string(), target_id: None});
-    println!("{:?}", test_cmd);
-    let json = serde_json::to_string(&test_cmd).unwrap();
-    println!("{}", json);
-    let unpacked_cmd: CmdWrapper = serde_json::from_str(&json).unwrap();
-    match unpacked_cmd {
-        CmdWrapper::PlayCard(cmd) => println!("{:?}", cmd),
-        CmdWrapper::ChooseCorporation(cmd) => println!("{:?}", cmd),
-        CmdWrapper::ResearchCards(cmd) => println!("{:?}", cmd),
-    }
+    println!("{:?}", state_machine.get_state().players[0].research_queue);
 
     let server = Server::new();
     let arc_cmd_deque = Arc::clone(&server.cmd_deque);
@@ -91,7 +81,7 @@ fn main() {
             let cmd_string = format!("{:?}", cmd);
             match state_machine.apply(cmd) {
                 Ok(()) => println!("[LOG] Successfully applied {:?}", cmd_string),
-                Err(err) => println!("[LOG] Encountered Error {} while applying {:?}", err, cmd_string),
+                Err(err) => println!("[LOG] Encountered Error \"{}\" while applying {:?}", err, cmd_string),
             }
             deque_cvar.notify_one();
         }
