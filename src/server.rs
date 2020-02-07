@@ -10,6 +10,7 @@ use crate::commands::CmdWrapper;
 pub struct Server {
     tcp_listener: TcpListener,
     pub cmd_deque: Arc<(Mutex<VecDeque<CmdWrapper>>, Condvar)>,
+    
 }
 
 impl Server {
@@ -38,26 +39,34 @@ impl Server {
                     }
 
                     // Only accept text messages
-                    if msg.is_text() {
-                        println!("[DEBUG] Received message {}", msg);
-                        let unpacked_cmd: CmdWrapper;
-                        let msg_string = &msg.into_text().unwrap();
-                        match serde_json::from_str(msg_string) {
-                            Ok(cmd) => unpacked_cmd = cmd,
-                            Err(err) => {
-                                println!("[LOG] Failed to parse message, encountered error {}", err);
-                                websocket.write_message(Message::Text(
-                                    format!("{{ \"msg\": 'Invalid message! Could not parse command{} Encountered error: {}'}}", msg_string, err)
-                                )).unwrap();
-                                continue;
-                            }
+                    match msg {
+                        Message::Close(frame) => {
+                            println!("[LOG] Closing websocket, received closing msg with frame {:?}", frame);
+                            return;
                         }
+                        Message::Text(json_msg) => {
+                            println!("[DEBUG] Received message {}", json_msg);
+                            let unpacked_cmd: CmdWrapper;
+                            match serde_json::from_str(&json_msg) {
+                                Ok(cmd) => unpacked_cmd = cmd,
+                                Err(err) => {
+                                    println!("[LOG] Failed to parse message, encountered error {}", err);
+                                    websocket.write_message(Message::Text(
+                                        format!("{{ \"msg\": 'Invalid message! Could not parse command{} Encountered error: {}'}}", json_msg, err)
+                                    )).unwrap();
+                                    continue;
+                                }
+                            }
 
-                        println!("[LOG] Received and enqueue cmd {:?}", unpacked_cmd);
-                        let (deque_lock, deque_cvar) = &*arc_cmd_deque;
-                        let mut cmd_deque = deque_lock.lock().unwrap();
-                        cmd_deque.push_back(unpacked_cmd);
-                        deque_cvar.notify_one();
+                            println!("[LOG] Received and enqueue cmd {:?}", unpacked_cmd);
+                            let (deque_lock, deque_cvar) = &*arc_cmd_deque;
+                            let mut cmd_deque = deque_lock.lock().unwrap();
+                            cmd_deque.push_back(unpacked_cmd);
+                            deque_cvar.notify_one();
+                        }
+                        Message::Binary(_) => (), // ignore Binary messages
+                        Message::Ping(_) => (), // ignore Ping messages
+                        Message::Pong(_) => (), // ignore Pong messages
                     }
                 }       
             });
