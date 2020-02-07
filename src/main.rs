@@ -1,6 +1,8 @@
 use std::path::Path;
 use std::fs::File;
 use std::io::prelude::*;
+use std::thread::spawn;
+use std::sync::{Arc};
 
 mod state_machine;
 mod card;
@@ -8,11 +10,13 @@ mod commands;
 mod game_state;
 mod player;
 mod card_pile;
+mod server;
 
 use crate::state_machine::StateMachine;
 use crate::game_state::{GameState, Phase};
 use crate::card::Deck;
 use crate::commands::{ChooseCorporation, ResearchCards, PlayCard, CmdWrapper};
+use crate::server::Server;
 
 fn main() {
     // load cards
@@ -57,5 +61,41 @@ fn main() {
     state_machine.advance_phase().unwrap();
     // after production state should automatically transition into research phase
     assert_eq!(state_machine.get_state().phase, Phase::Research);
-    println!("{:?}", state_machine.get_state().players[0]);
+    // println!("{:?}", state_machine.get_state().players[0]);
+    
+    // test serde with commands
+    let test_cmd = CmdWrapper::PlayCard(PlayCard{owner_id: 0, card_id: "42".to_string(), target_id: None});
+    println!("{:?}", test_cmd);
+    let json = serde_json::to_string(&test_cmd).unwrap();
+    println!("{}", json);
+    let unpacked_cmd: CmdWrapper = serde_json::from_str(&json).unwrap();
+    match unpacked_cmd {
+        CmdWrapper::PlayCard(cmd) => println!("{:?}", cmd),
+        CmdWrapper::ChooseCorporation(cmd) => println!("{:?}", cmd),
+        CmdWrapper::ResearchCards(cmd) => println!("{:?}", cmd),
+    }
+
+    let server = Server::new();
+    let arc_cmd_deque = Arc::clone(&server.cmd_deque);
+
+    let is_running = true;
+    let svr_handle = spawn(move || {
+        server.start();
+    });
+
+    let (deque_lock, deque_cvar) = &*arc_cmd_deque;
+    let mut cmd_deque = deque_lock.lock().unwrap();
+    while is_running {
+        while !cmd_deque.is_empty() {
+            let cmd = cmd_deque.pop_front().unwrap();
+            let cmd_string = format!("{:?}", cmd);
+            match state_machine.apply(cmd) {
+                Ok(()) => println!("[LOG] Successfully applied {:?}", cmd_string),
+                Err(err) => println!("[LOG] Encountered Error {} while applying {:?}", err, cmd_string),
+            }
+            deque_cvar.notify_one();
+        }
+        cmd_deque = deque_cvar.wait(cmd_deque).unwrap();
+    }
+    svr_handle.join().unwrap();
 }
