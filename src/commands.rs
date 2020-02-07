@@ -1,4 +1,5 @@
 use undo::Command;
+use serde::{Deserialize, Serialize};
 use std::{error::Error, fmt};
 
 use crate::game_state::{GameState, OwnedCard, Phase};
@@ -42,6 +43,7 @@ impl Command<GameState> for DrawCards {
     }
 }
 
+#[derive(Debug, Deserialize, Serialize)]
 pub struct PlayCard{pub owner_id: usize, pub card_id: String, pub target_id: Option<usize>}
 
 fn check_requirements(card: &Card, player_id: usize, game_state: &GameState) -> undo::Result {
@@ -118,6 +120,7 @@ impl Command<GameState> for PlayCard {
     }
 }
 
+#[derive(Debug, Deserialize, Serialize)]
 pub struct ChooseCorporation{pub player_id: usize, pub card_id: String}
 
 impl Command<GameState> for ChooseCorporation {
@@ -145,6 +148,7 @@ impl Command<GameState> for ChooseCorporation {
     }
 }
 
+#[derive(Debug, Deserialize, Serialize)]
 pub struct ResearchCards{pub player_id: usize, pub card_ids: Vec<String>}
 
 const CARD_COST: u32 = 3;
@@ -313,6 +317,7 @@ impl Command<GameState> for ModProduction {
     }
 }
 
+#[derive(Debug, Deserialize, Serialize)]
 pub enum CmdWrapper {
     PlayCard(PlayCard),
     ResearchCards(ResearchCards),
