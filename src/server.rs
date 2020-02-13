@@ -7,10 +7,13 @@ use tungstenite::server::accept;
 use tungstenite::protocol::{Message, WebSocket};
 
 use crate::commands::CmdWrapper;
+use crate::game_state::GameState;
 
 pub struct Server {
     tcp_listener: TcpListener,
     pub cmd_deque: Arc<(Mutex<VecDeque<CmdWrapper>>, Condvar)>,
+    pub broadcast_deque: Arc<(Mutex<VecDeque<GameState>>, Condvar)>,
+    pub error_deque: Arc<(Mutex<VecDeque<(CmdWrapper, String)>>, Condvar)>,
     pub connections: Arc<Mutex<Vec<(usize, Uuid)>>>,
 }
 
@@ -19,6 +22,8 @@ impl Server {
         Server {
             tcp_listener: TcpListener::bind("127.0.0.1:9001").unwrap(),
             cmd_deque: Arc::new( (Mutex::new(VecDeque::new()), Condvar::new()) ),
+            broadcast_deque: Arc::new( (Mutex::new(VecDeque::new()), Condvar::new()) ),
+            error_deque: Arc::new( (Mutex::new(VecDeque::new()), Condvar::new()) ),
             connections: Arc::new(Mutex::new(Vec::new())),
         }
     }
