@@ -4,6 +4,7 @@ use rand::prelude::*;
 use crate::player::Player;
 use crate::card::{Card, Deck, CardType};
 use crate::card_pile::CardPile;
+use crate::commands::CannotExecute;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GameState {
@@ -106,12 +107,18 @@ impl GameState {
         )
     }
 
-    pub fn get_player(&self, id: usize) -> &Player {
-        &self.players[id]
+    pub fn get_player(&self, id: usize) -> Result<&Player, CannotExecute> {
+        match self.players.get(id) {
+            Some(player) => Ok(player),
+            None => Err(CannotExecute{reason: format!("Cannot find player {}!", id)}),
+        }
     }
 
-    pub fn get_player_mut(&mut self, id: usize) -> &mut Player {
-        &mut self.players[id]
+    pub fn get_player_mut(&mut self, id: usize) -> Result<&mut Player, CannotExecute> {
+        match self.players.get_mut(id) {
+            Some(player) => Ok(player),
+            None => Err(CannotExecute{reason: format!("Cannot find player {}!", id)}),
+        }
     }
 
     pub fn new(cards: &mut Vec<Card>, used_decks: &Vec<Deck>, player_count: usize) -> GameState {

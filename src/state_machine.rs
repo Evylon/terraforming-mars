@@ -41,7 +41,7 @@ impl StateMachine {
     }
 
     fn research_card(&mut self, command: ResearchCards) -> undo::Result {
-        let research_queue = &self.get_state().get_player(command.player_id).research_queue;
+        let research_queue = &self.get_state().get_player(command.player_id)?.research_queue;
         let discard_ids = research_queue.iter().map(|c| c.id.to_owned()).filter(|id| !command.card_ids.contains(&id)).collect();
         let discard_cmd = DiscardResearch{player_id: command.player_id, card_ids: discard_ids};
         let chain = Chain::new().join(command).join(discard_cmd);

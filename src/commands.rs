@@ -14,12 +14,12 @@ impl Command<GameState> for DrawCards {
         match self.card_type {
             CardType::Corporation => {
                 let mut cards = game_state.corporation_pile.draw_cards(self.count);
-                let player = game_state.get_player_mut(self.player_id);
+                let player = game_state.get_player_mut(self.player_id)?;
                 player.draft_corporations(cards.as_mut());
             }
             _ => {
                 let mut cards = game_state.project_pile.draw_cards(self.count);
-                let player = game_state.get_player_mut(self.player_id);
+                let player = game_state.get_player_mut(self.player_id)?;
                 player.enqueue_research(cards.as_mut());
             }
         }
@@ -27,7 +27,7 @@ impl Command<GameState> for DrawCards {
     }
     // hand: [c3, c2, c1] -> pile: [c1, c2, c3]
     fn undo(&mut self, game_state: &mut GameState) -> undo::Result {
-        let player = game_state.get_player_mut(self.player_id);
+        let player = game_state.get_player_mut(self.player_id)?;
         let draw_range = player.hand.len()-self.count..;
         match self.card_type {
             CardType::Corporation => {
@@ -90,7 +90,7 @@ impl Command<GameState> for PlayCard {
         if self.owner_id != game_state.active_player {
             return CannotExecute::new(format!("Player {} cannot PlayCard. Active player is {}", self.owner_id, game_state.active_player));
         }
-        let player = game_state.get_player_mut(self.owner_id);
+        let player = game_state.get_player_mut(self.owner_id)?;
         // check if player actually owns the card
         let card = match player.hand.iter().position(|c| c.id == self.card_id) {
             Some(idx) => player.hand.remove(idx),
@@ -113,7 +113,7 @@ impl Command<GameState> for PlayCard {
             Some(idx) => game_state.cards_in_play.remove(idx),
             None => return CannotExecute::new(format!("Card {} not found in cards_in_player!", self.card_id)),
         };
-        let player = game_state.get_player_mut(self.owner_id);
+        let player = game_state.get_player_mut(self.owner_id)?;
         player.inventory.megacredits += owned_card.card.cost;
         player.hand.push(owned_card.card);
         Ok(())
@@ -128,7 +128,7 @@ impl Command<GameState> for ChooseCorporation {
         if game_state.phase != Phase::Setup {
             return CannotExecute::new("Can only select corporation in setup phase!".to_owned());
         }
-        let player = game_state.get_player_mut(self.player_id);
+        let player = game_state.get_player_mut(self.player_id)?;
         let (mut chosen, mut rejected): (Vec<Card>, Vec<Card>) = player.hand.drain(..).partition(|c| c.id == self.card_id);
         match chosen.pop() {
             Some(card) => player.corporation = Some(card),
@@ -141,7 +141,7 @@ impl Command<GameState> for ChooseCorporation {
     fn undo(&mut self, game_state: &mut GameState) -> undo::Result {
         // players always choose from 2 corporations
         let mut coorps = vec![game_state.corporation_pile.discard_pile.pop().unwrap()];
-        let player = game_state.get_player_mut(self.player_id);
+        let player = game_state.get_player_mut(self.player_id)?;
         coorps.push(player.corporation.take().unwrap());
         player.hand.append(coorps.as_mut());
         Ok(())
@@ -155,7 +155,7 @@ const CARD_COST: u32 = 3;
 
 impl Command<GameState> for ResearchCards {
     fn apply(&mut self, game_state: &mut GameState) -> undo::Result {
-        let player = game_state.get_player_mut(self.player_id);
+        let player = game_state.get_player_mut(self.player_id)?;
         // validate consistent ids in research_queue and card_ids
         if player.research_queue.iter().filter(|c| self.card_ids.contains(&c.id)).count() != self.card_ids.len() {
             return CannotExecute::new("card_ids and research_queue did not match".to_owned());
@@ -173,7 +173,7 @@ impl Command<GameState> for ResearchCards {
     }
 
     fn undo(&mut self, game_state: &mut GameState) -> undo::Result {
-        let player = game_state.get_player_mut(self.player_id);
+        let player = game_state.get_player_mut(self.player_id)?;
         // new cards are always appended. just return last n cards to the research_queue
         let first_idx = player.hand.len() - self.card_ids.len();
         let mut cards = player.hand.drain(first_idx..).collect::<Vec<Card>>();
@@ -186,7 +186,7 @@ pub struct DiscardResearch{pub player_id: usize, pub card_ids: Vec<String>}
 
 impl Command<GameState> for DiscardResearch {
     fn apply(&mut self, game_state: &mut GameState) -> undo::Result {
-        let player = game_state.get_player_mut(self.player_id);
+        let player = game_state.get_player_mut(self.player_id)?;
         // validate consistent ids in research_queue and card_ids
         if player.research_queue.iter().filter(|c| self.card_ids.contains(&c.id)).count() != self.card_ids.len() {
             return CannotExecute::new("card_ids and research_queue did not match".to_owned());
@@ -202,7 +202,7 @@ impl Command<GameState> for DiscardResearch {
         // new cards are always appended. just return last n cards to the research_queue
         let first_idx = game_state.project_pile.discard_pile.len() - self.card_ids.len();
         let mut cards = game_state.project_pile.discard_pile.drain(first_idx..).collect::<Vec<Card>>();
-        game_state.get_player_mut(self.player_id).research_queue.append(cards.as_mut());
+        game_state.get_player_mut(self.player_id)?.research_queue.append(cards.as_mut());
         Ok(())
     }
 }
@@ -220,7 +220,7 @@ fn mod_inventory(inv: &mut u32, count: i32, player_id: usize, res_type: String) 
 
 impl Command<GameState> for ModResources {
     fn apply(&mut self, game_state: &mut GameState) -> undo::Result {
-        let player = game_state.get_player_mut(self.player_id);
+        let player = game_state.get_player_mut(self.player_id)?;
         for res in self.rescs.iter() {
             let result = match *res {
                 Resource::MegaCredits(count) => mod_inventory(&mut player.inventory.megacredits, count, player.id, "Megacredits".to_owned()),
@@ -240,7 +240,7 @@ impl Command<GameState> for ModResources {
     }
 
     fn undo(&mut self, game_state: &mut GameState) -> undo::Result {
-        let player = game_state.get_player_mut(self.player_id);
+        let player = game_state.get_player_mut(self.player_id)?;
         for res in self.rescs.iter() {
             // we can always undo
             match *res {
@@ -270,7 +270,7 @@ fn mod_production(prod: &mut u32, count: i32, player_id: usize, res_type: String
 
 impl Command<GameState> for ModProduction {
     fn apply(&mut self, game_state: &mut GameState) -> undo::Result {
-        let player = game_state.get_player_mut(self.player_id);
+        let player = game_state.get_player_mut(self.player_id)?;
         for res in self.rescs.iter() {
             // if res == Resource
             let result = match *res {
@@ -299,7 +299,7 @@ impl Command<GameState> for ModProduction {
     }
 
     fn undo(&mut self, game_state: &mut GameState) -> undo::Result {
-        let player = game_state.get_player_mut(self.player_id);
+        let player = game_state.get_player_mut(self.player_id)?;
         for res in self.rescs.iter() {
             // we can always undo
             match *res {

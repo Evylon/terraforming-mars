@@ -40,7 +40,7 @@ fn main() {
     state_machine.advance_phase().unwrap();
 
     for player_id in 0..2 {
-        let card = state_machine.get_state().get_player(player_id).hand.first().unwrap();
+        let card = state_machine.get_state().get_player(player_id).unwrap().hand.first().unwrap();
         let cmd = ChooseCorporation{player_id: player_id, card_id: card.id.to_owned()};
         state_machine.apply(CmdWrapper::ChooseCorporation(cmd)).unwrap();
         let mut card_ids: Vec<String> = state_machine.get_state().players[player_id].research_queue.iter().map(|c| c.id.to_owned()).collect();
