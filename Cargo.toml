@@ -8,6 +8,7 @@ default-run = "terraforming-mars"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+uuid = { version = "0.4", features = ["serde", "v4"] }
 csv = "1.1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1.0"
