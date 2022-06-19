@@ -1,17 +1,17 @@
 [package]
 name = "terraforming-mars"
 version = "0.1.0"
-authors = ["Evylon <chaos@evylon.de>"]
+authors = ["Evylon <mail@evylon.de>"]
 edition = "2018"
 default-run = "terraforming-mars"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-uuid = { version = "0.4", features = ["serde", "v4"] }
+uuid = { version = "1.1.2", features = ["serde", "v4"] }
 csv = "1.1"
-serde = { version = "1", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-rand = "0.7"
-undo = "0.39"
-tungstenite = "0.10.1"
+rand = "0.8.5"
+undo = "0.47.2"
+tungstenite = "0.17.2"
